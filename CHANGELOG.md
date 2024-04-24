@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v1.0.0...v1.1.0) (2024-04-24)
+
+
+### Features
+
+* files identation ([ac626b5](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ac626b53fd2945657ef1bcea212ff81d75e73391))
+* files identation ([ba27356](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ba27356da1286db48a112a93c54ba49bc8a20814))
+
 ## 1.0.0 (2024-04-24)
 
 
