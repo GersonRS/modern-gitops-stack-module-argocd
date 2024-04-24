@@ -8,24 +8,25 @@ annotations:
 apiVersion: v2
 appVersion: v2.10.0
 dependencies:
-- condition: redis-ha.enabled
-  name: redis-ha
-  repository: https://dandydeveloper.github.io/charts/
-  version: 4.23.0
-description: A Helm chart for Argo CD, a declarative, GitOps continuous delivery tool
+  - condition: redis-ha.enabled
+    name: redis-ha
+    repository: https://dandydeveloper.github.io/charts/
+    version: 4.23.0
+description:
+  A Helm chart for Argo CD, a declarative, GitOps continuous delivery tool
   for Kubernetes.
 home: https://github.com/argoproj/argo-helm
 icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
 keywords:
-- argoproj
-- argocd
-- gitops
-kubeVersion: '>=1.23.0-0'
+  - argoproj
+  - argocd
+  - gitops
+kubeVersion: ">=1.23.0-0"
 maintainers:
-- name: argoproj
-  url: https://argoproj.github.io/
+  - name: argoproj
+    url: https://argoproj.github.io/
 name: argo-cd
 sources:
-- https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
-- https://github.com/argoproj/argo-cd
+  - https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
+  - https://github.com/argoproj/argo-cd
 version: 5.55.0
