@@ -8,4 +8,4 @@ on:
 
 jobs:
   release:
-    uses: camptocamp/modern-gitops-stack/.github/workflows/modules-release-please.yaml@main
+    uses: GersonRS/modern-gitops-stack/.github/workflows/modules-release-please.yaml@main

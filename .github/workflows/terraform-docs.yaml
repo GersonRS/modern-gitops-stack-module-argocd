@@ -6,6 +6,6 @@ on:
 
 jobs:
   terraform-docs:
-    uses: camptocamp/modern-gitops-stack/.github/workflows/modules-terraform-docs.yaml@main
+    uses: GersonRS/modern-gitops-stack/.github/workflows/modules-terraform-docs.yaml@main
     with:
       variants: "bootstrap"

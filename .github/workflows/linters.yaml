@@ -6,4 +6,4 @@ on:
 
 jobs:
   linters:
-    uses: camptocamp/modern-gitops-stack/.github/workflows/modules-linters.yaml@main
+    uses: GersonRS/modern-gitops-stack/.github/workflows/modules-linters.yaml@main

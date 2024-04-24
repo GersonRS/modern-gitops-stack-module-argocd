@@ -14,6 +14,6 @@ on:
 
 jobs:
   add-to-project:
-    uses: camptocamp/modern-gitops-stack/.github/workflows/pr-issues-project.yaml@main
+    uses: GersonRS/modern-gitops-stack/.github/workflows/pr-issues-project.yaml@main
     secrets:
       PROJECT_APP_PRIVATE_KEY: ${{ secrets.PROJECT_APP_PRIVATE_KEY }}
