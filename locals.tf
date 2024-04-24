@@ -78,7 +78,10 @@ locals {
       ]
       # The extra containers of the repo_server pod must have resource requests/limits in order to allow this component
       # to autoscale properly.
-      resources = var.resources.repo_server # TODO Maybe this resources should be different from the repo_server one.
+      resources = { # TODO Maybe these resources should be different from the repo_server one.
+        requests = { for k, v in var.resources.repo_server.requests : k => v if v != null }
+        limits   = { for k, v in var.resources.repo_server.limits : k => v if v != null }
+      }
     },
     {
       name    = "helmfile-cmp"
@@ -108,7 +111,10 @@ locals {
       ]
       # The extra containers of the repo_server pod must have resource requests/limits in order to allow this component
       # to autoscale properly.
-      resources = var.resources.repo_server # TODO Maybe this resources should be different from the repo_server one.
+      resources = { # TODO Maybe these resources should be different from the repo_server one.
+        requests = { for k, v in var.resources.repo_server.requests : k => v if v != null }
+        limits   = { for k, v in var.resources.repo_server.limits : k => v if v != null }
+      }
     }
   ]
 
@@ -133,8 +139,6 @@ locals {
     var.repo_server_iam_role_arn != null ? { "eks.amazonaws.com/role-arn" = var.repo_server_iam_role_arn } : {},
     var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/client-id" = var.repo_server_azure_workload_identity_clientid } : {}
   )
-
-  repo_server_service_account_labels = var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/use" : "true" } : {}
 
   repo_server_pod_labels = merge(
     var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/use" : "true" } : {},
@@ -163,12 +167,18 @@ locals {
         }
       })
       applicationSet = {
-        replicas  = var.high_availability.enabled ? var.high_availability.application_set.replicas : null
-        resources = var.resources.application_set
+        replicas = var.high_availability.enabled ? var.high_availability.application_set.replicas : null
+        resources = {
+          requests = { for k, v in var.resources.application_set.requests : k => v if v != null }
+          limits   = { for k, v in var.resources.application_set.limits : k => v if v != null }
+        }
       }
       controller = {
-        replicas  = var.high_availability.enabled ? var.high_availability.controller.replicas : null
-        resources = var.resources.controller
+        replicas = var.high_availability.enabled ? var.high_availability.controller.replicas : null
+        resources = {
+          requests = { for k, v in var.resources.controller.requests : k => v if v != null }
+          limits   = { for k, v in var.resources.controller.limits : k => v if v != null }
+        }
         metrics = {
           enabled = true
           serviceMonitor = {
@@ -186,7 +196,10 @@ locals {
           minReplicas = var.high_availability.repo_server.autoscaling.min_replicas
           maxReplicas = var.high_availability.repo_server.autoscaling.max_replicas
         } : null
-        resources = var.resources.repo_server
+        resources = {
+          requests = { for k, v in var.resources.repo_server.requests : k => v if v != null }
+          limits   = { for k, v in var.resources.repo_server.limits : k => v if v != null }
+        }
         metrics = {
           enabled = true
           serviceMonitor = {
@@ -198,7 +211,6 @@ locals {
         podLabels       = local.repo_server_pod_labels
         serviceAccount = {
           annotations = local.repo_server_service_account_annotations
-          labels      = local.repo_server_service_account_labels
         }
       }
       extraObjects = local.extra_objects
@@ -209,7 +221,10 @@ locals {
           minReplicas = var.high_availability.server.autoscaling.min_replicas
           maxReplicas = var.high_availability.server.autoscaling.max_replicas
         } : null
-        resources = var.resources.server
+        resources = {
+          requests = { for k, v in var.resources.server.requests : k => v if v != null }
+          limits   = { for k, v in var.resources.server.limits : k => v if v != null }
+        }
         extraArgs = [
           "--insecure",
         ]
@@ -273,16 +288,25 @@ locals {
         }
       }
       notifications = {
-        resources = var.resources.notifications
+        resources = {
+          requests = { for k, v in var.resources.notifications.requests : k => v if v != null }
+          limits   = { for k, v in var.resources.notifications.limits : k => v if v != null }
+        }
       }
       # When the Redis HA is enabled, the default Redis chart is not used, so we change the value to null.
       redis = !var.high_availability.enabled ? {
-        resources = var.resources.redis
+        resources = {
+          requests = { for k, v in var.resources.redis.requests : k => v if v != null }
+          limits   = { for k, v in var.resources.redis.limits : k => v if v != null }
+        }
       } : null
       redis-ha = var.high_availability.enabled ? {
         enabled = true
         redis = {
-          resources = var.resources.redis
+          resources = {
+            requests = { for k, v in var.resources.redis.requests : k => v if v != null }
+            limits   = { for k, v in var.resources.redis.limits : k => v if v != null }
+          }
         }
         } : {
         enabled = false

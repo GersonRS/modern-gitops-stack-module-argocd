@@ -1,0 +1,11 @@
+---
+name: "release-please"
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  release:
+    uses: camptocamp/modern-gitops-stack/.github/workflows/modules-release-please.yaml@main

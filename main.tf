@@ -28,7 +28,7 @@ resource "argocd_project" "this" {
 
   spec {
     description  = "Argo CD application project"
-    source_repos = ["https://github.com/GersonRS/modern-gitops-stack-module-argocd.git"]
+    source_repos = ["https://github.com/camptocamp/modern-gitops-stack-module-argocd.git"]
 
     destination {
       name      = "in-cluster"
@@ -69,7 +69,7 @@ resource "argocd_application" "this" {
 
     source {
       path            = "charts/argocd"
-      repo_url        = "https://github.com/GersonRS/modern-gitops-stack-module-argocd.git"
+      repo_url        = "https://github.com/camptocamp/modern-gitops-stack-module-argocd.git"
       target_revision = var.target_revision
       helm {
         release_name = "argocd"

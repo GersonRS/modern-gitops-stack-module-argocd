@@ -1,0 +1,9 @@
+---
+name: "linters"
+
+on:
+  pull_request:
+
+jobs:
+  linters:
+    uses: camptocamp/modern-gitops-stack/.github/workflows/modules-linters.yaml@main

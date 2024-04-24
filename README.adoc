@@ -1,0 +1,1060 @@
+= modern-gitops-stack-module-argocd
+// Document attributes to replace along the document
+:argo-cd-chart-version: 5.27.1
+:chart-url: https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
+
+A https://modern-gitops-stack.io[Modern GitOps Stack] module to deploy and configure https://argo-cd.readthedocs.io/[Argo CD].
+
+The Argo CD chart used by this module is shipped in this repository as well, in order to avoid any unwanted behaviors caused by unsupported versions. 
+
+[cols="1,1,1",options="autowidth,header"]
+|===
+|Current Chart Version |Original Repository |Default Values
+|*{argo-cd-chart-version}* |{chart-url}[Chart] |https://artifacthub.io/packages/helm/argo/argo-cd/{argo-cd-chart-version}?modal=values[`values.yaml`]
+|===
+
+== Usage
+
+IMPORTANT: The root of this repository contains the final Argo CD module to be deployed, which uses a https://registry.terraform.io/providers/oboukili/argocd/latest/docs[Terraform provider for Argo CD] to deploy the Argo CD chart. On the first deployment of a cluster, you'll want to use the bootstrap module instead. Check the xref:ROOT:bootstrap/README.adoc[bootstrap module's documentation] for more information.
+
+To deploy the final Argo CD module, you'll need to add the following declaration on your Terraform configuration:
+
+[source,terraform]
+----
+module "argocd" {
+  source = "git::https://github.com/camptocamp/modern-gitops-stack-module-argocd.git?ref=<RELEASE>"
+
+  cluster_name   = local.cluster_name
+  base_domain    = local.base_domain
+  cluster_issuer = local.cluster_issuer
+
+  admin_enabled            = "true"
+  namespace                = module.argocd_bootstrap.argocd_namespace
+  accounts_pipeline_tokens = module.argocd_bootstrap.argocd_accounts_pipeline_tokens
+  server_secretkey         = module.argocd_bootstrap.argocd_server_secretkey
+
+  dependency_ids = {
+    argocd                = module.argocd_bootstrap.id
+    traefik               = module.traefik.id
+    cert-manager          = module.cert-manager.id
+    oidc                  = module.oidc.id
+    kube-prometheus-stack = module.kube-prometheus-stack.id
+  }
+}
+----
+
+A more complex declaration, that includes a OIDC configuration for the login (this way you avoid having to login using the admin password found on a Kubernetes secret) and the configuration of some other source repositories, would be:
+
+[source,terraform]
+----
+module "argocd" {
+  source = "git::https://github.com/camptocamp/modern-gitops-stack-module-argocd.git?ref=<RELEASE>"
+
+  ...
+
+  oidc = {
+    name         = "OIDC"
+    issuer       = module.oidc.oidc.issuer_url
+    clientID     = module.oidc.oidc.client_id
+    clientSecret = module.oidc.oidc.client_secret
+    requestedIDTokenClaims = {
+      groups = {
+        essential = true
+      }
+    }
+    requestedScopes = [
+      "openid", "profile", "email"
+    ]
+  }
+
+  repositories = {
+    cluster-apps = {
+      ...
+    }
+    user-apps = {
+      ...
+    }
+  }
+
+  ...
+}
+----
+
+TIP: The sources can also be configured using the xref:application:ROOT:README.adoc[Application] and xref:applicationset:ROOT:README.adoc[ApplicationSet] modules.
+
+You can also overload the `policy.csv` as shown in the following example:
+
+[source,terraform]
+----
+module "argocd" {
+  source = "git::https://github.com/camptocamp/modern-gitops-stack-module-argocd.git?ref=<RELEASE>"
+
+  ...
+
+  rbac = {
+    policy_csv = <<-EOT
+      g, pipeline, role:admin
+      g, argocd-admin, role:admin
+      p, role:read-sync, applications, get, */*, allow
+      p, role:read-sync, applications, sync, */*, allow
+      p, role:read-sync, repositories, get, *, allow
+      p, role:read-sync, projects, get, *, allow
+    EOT
+  }
+
+  ...
+}
+----
+
+NOTE: By default, this module has a `policy.csv` that is configured to give administrator access to any user belonging to the groups `argocd-admin` or `modern-gitops-stack-admins`.
+
+== Custom Plugins
+
+This module installs two custom plugins:
+
+1. "kustomized-helm" is just a combination of Kustomize and Helm that allows using Helm charts and then applying Kustomize overrides to the result.
+2. "helmfile-sops" adds support for Helmfile managed applications, and integrates the support for https://github.com/mozilla/sops[SOPS]. This is a custom plugin developed by Camptocamp (source code available https://github.com/camptocamp/docker-argocd-cmp-helmfile[here]).
+
+NOTE: When using SOPS, you will want to give it access to an external secrets management or encryption service. For this, you will want to pass an AWS IAM role, and Azure Workload Identity Client-ID, or an Azure AAD Pod Identity using the variables `repo_server_iam_role_arn`, repo_server_azure_workload_identity_clientid`, or `repo_server_aadpodidbinding`.
+
+== Troubleshooting
+
+=== `connection_error` during `terraform apply`
+
+When deploying this module of Argo CD you may experience connection errors (which is normal given that `argocd-server` pod could have been redeployed).
+
+[source]
+----
+│ Error: Error while waiting for application argocd to be created
+│
+│   with module.argocd.argocd_application.this,
+│   on .terraform/modules/argocd/main.tf line 55, in resource "argocd_application" "this":
+│   55: resource "argocd_application" "this" {
+│
+│ error while waiting for application argocd to be synced and healthy: rpc error: code = Unavailable desc = connection error: desc = "transport: error while dialing: dial tcp 127.0.0.1:44461: connect:
+│ connection refused"
+----
+
+When bootstrapping a cluster for the first time, you can simply run `terraform apply` again and the deployment should finish correctly.
+
+[NOTE]
+====
+There are some settings that force the automatic redeployment of the `argocd-server` pod during the first bootstrap of the cluster.
+
+A good example is the `admin_enabled` variable which is set as `true` for the bootstrap but not for the final Argo CD module. If you pass the `admin_enabled = true` to the final Argo CD module you will most likely not encounter this error on the first deployment of you cluster, however you could run into the error of the interface looping whenever you click login (see the other troubleshoot sections).
+====
+
+However, on some cases (notably when upgrading the Argo CD module), this error could leave the Terraform resource tainted.
+
+[source]
+----
+terraform plan
+  # module.modern_gitops_stack_blue.module.argocd.argocd_application.this is tainted, so must be replaced
+-/+ resource "argocd_application" "this" {
+      ~ id      = "argocd:argocd" -> (known after apply)
+        # (2 unchanged attributes hidden)
+
+      ~ metadata {
+        ...
+        }
+
+      ~ spec {
+        ...
+        }
+    }
+
+Plan: 1 to add, 1 to change, 1 to destroy.
+----
+
+*Untainting the resource with the command `terraform untaint module.argocd.argocd_application.this` should solve the issue*.
+
+=== Argo CD interface reload loop when clicking on login
+
+If you encounter a loop when clicking on the login button on the Argo CD interface, you can try to delete the Argo CD server pod and let it be recreated.
+
+This error usually happens because there are some unapplied settings between the bootstrap Argo CD and the final Argo CD module. If you already encountered the error from the previous step, then this error should not happen, as it means the pod was already recreated.
+
+== Technical Documentation
+
+=== Dependencies
+
+==== `module.argocd_bootstrap.id`
+
+Obviously, this module needs an already working Argo CD (the bootstrap), so it depends on `module.argocd_bootstrap`.
+
+==== `module.traefik.id`
+
+Since there is an ingress deployed with this module, it needs to be deployed after Traefik so it depends on `module.ingress`.
+
+==== `module.traefik.id`
+
+For the same reason as the previous dependency, it needs to be deployed after cert-manager so it depends on `module.cert-manager`.
+
+==== `module.oidc.id`
+
+Only for the platforms that deploy a OIDC module, such as EKS, KinD or SKS, there is also a the dependency on `module.oidc.id`.
+
+==== `module.kube-prometheus-stack.id`
+
+Finally, the kube-prometheus-stack is a requirement because this Argo CD module requires the ServiceMonitor CRD so it depends on `module.kube-prometheus-stack`.
+
+// BEGIN_TF_DOCS
+=== Requirements
+
+The following requirements are needed by this module:
+
+- [[requirement_terraform]] <<requirement_terraform,terraform>> (>= 1.2)
+
+- [[requirement_argocd]] <<requirement_argocd,argocd>> (>= 5)
+
+- [[requirement_htpasswd]] <<requirement_htpasswd,htpasswd>> (>= 1)
+
+- [[requirement_jwt]] <<requirement_jwt,jwt>> (>= 1.1)
+
+- [[requirement_null]] <<requirement_null,null>> (>= 3)
+
+- [[requirement_random]] <<requirement_random,random>> (>= 3)
+
+- [[requirement_time]] <<requirement_time,time>> (>= 0.9)
+
+- [[requirement_utils]] <<requirement_utils,utils>> (>= 1.6)
+
+=== Providers
+
+The following providers are used by this module:
+
+- [[provider_null]] <<provider_null,null>> (>= 3)
+
+- [[provider_jwt]] <<provider_jwt,jwt>> (>= 1.1)
+
+- [[provider_time]] <<provider_time,time>> (>= 0.9)
+
+- [[provider_random]] <<provider_random,random>> (>= 3)
+
+- [[provider_utils]] <<provider_utils,utils>> (>= 1.6)
+
+- [[provider_argocd]] <<provider_argocd,argocd>> (>= 5)
+
+=== Resources
+
+The following resources are used by this module:
+
+- https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/application[argocd_application.this] (resource)
+- https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/project[argocd_project.this] (resource)
+- https://registry.terraform.io/providers/camptocamp/jwt/latest/docs/resources/hashed_token[jwt_hashed_token.tokens] (resource)
+- https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.dependencies] (resource)
+- https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.this] (resource)
+- https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid[random_uuid.jti] (resource)
+- https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/static[time_static.iat] (resource)
+- https://registry.terraform.io/providers/cloudposse/utils/latest/docs/data-sources/deep_merge_yaml[utils_deep_merge_yaml.values] (data source)
+
+=== Required Inputs
+
+The following input variables are required:
+
+==== [[input_cluster_name]] <<input_cluster_name,cluster_name>>
+
+Description: Name given to the cluster. Value used for the ingress' URL of the application.
+
+Type: `string`
+
+==== [[input_base_domain]] <<input_base_domain,base_domain>>
+
+Description: Base domain of the cluster. Value used for the ingress' URL of the application.
+
+Type: `string`
+
+==== [[input_accounts_pipeline_tokens]] <<input_accounts_pipeline_tokens,accounts_pipeline_tokens>>
+
+Description: API token for pipeline account.
+
+Type: `string`
+
+==== [[input_server_secretkey]] <<input_server_secretkey,server_secretkey>>
+
+Description: Signature key for session validation. *Must reuse the bootstrap output containing the secretkey.*
+
+Type: `string`
+
+=== Optional Inputs
+
+The following input variables are optional (have default values):
+
+==== [[input_subdomain]] <<input_subdomain,subdomain>>
+
+Description: Subdomain of the cluster. Value used for the ingress' URL of the application.
+
+Type: `string`
+
+Default: `"apps"`
+
+==== [[input_argocd_project]] <<input_argocd_project,argocd_project>>
+
+Description: Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application.
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_argocd_labels]] <<input_argocd_labels,argocd_labels>>
+
+Description: Labels to attach to the Argo CD Application resource.
+
+Type: `map(string)`
+
+Default: `{}`
+
+==== [[input_target_revision]] <<input_target_revision,target_revision>>
+
+Description: Override of target revision of the application chart.
+
+Type: `string`
+
+Default: `"v4.4.0"`
+
+==== [[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
+
+Description: SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files. You can use `ca-issuer` when using the self-signed variant of cert-manager.
+
+Type: `string`
+
+Default: `"selfsigned-issuer"`
+
+==== [[input_helm_values]] <<input_helm_values,helm_values>>
+
+Description: Helm chart value overrides. They should be passed as a list of HCL structures.
+
+Type: `any`
+
+Default: `[]`
+
+==== [[input_app_autosync]] <<input_app_autosync,app_autosync>>
+
+Description: Automated sync options for the Argo CD Application resource.
+
+Type:
+[source,hcl]
+----
+object({
+    allow_empty = optional(bool)
+    prune       = optional(bool)
+    self_heal   = optional(bool)
+  })
+----
+
+Default:
+[source,json]
+----
+{
+  "allow_empty": false,
+  "prune": true,
+  "self_heal": true
+}
+----
+
+==== [[input_dependency_ids]] <<input_dependency_ids,dependency_ids>>
+
+Description: n/a
+
+Type: `map(string)`
+
+Default: `{}`
+
+==== [[input_resources]] <<input_resources,resources>>
+
+Description: Resource limits and requests for Argo CD's components. Follow the style on https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[official documentation] to understand the format of the values.
+
+NOTE: The `repo_server` requests and limits will be applied to all the extra containers that are deployed with the `argocd-repo-server` component (each container has the same requests and limits as the main container, **so it is cumulative**).
+
+NOTE: If you enable the HA mode using the `high_availability` variable, the values for Redis will be applied to the Redis HA chart instead of the default one.
+
+IMPORTANT: These are not production values. You should always adjust them to your needs.
+
+Type:
+[source,hcl]
+----
+object({
+
+    application_set = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    controller = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "500m")
+        memory = optional(string, "512Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    notifications = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    repo_server = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    server = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "50m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    redis = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "256Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+  })
+----
+
+Default: `{}`
+
+==== [[input_high_availability]] <<input_high_availability,high_availability>>
+
+Description: Argo CD High Availability settings. By default, the HA is disabled.
+
+To enable HA using the default replicas, simply set the value `high_availability.enabled` to `true`. **This will deploy Argo CD in HA without autoscaling.**
+
+You can enable autoscaling of the `argocd-server` and `argocd-repo-server` components by setting the `high_availability.server.autoscaling.enabled` and `high_availability.repo_server.autoscaling.enabled` values to `true`. You can also configure the minimum and maximum replicas desired or leave the default values.
+
+IMPORTANT: Activating the HA mode automatically enables the Redis HA chart which requires at least 3 worker nodes, as this chart enforces Pods to run on separate nodes.
+
+NOTE: Since this variable uses the `optional` argument to forcing the user to define all the values, there is a side effect you can pass any other bogus value and Terraform will accept it, **but they won't be used in the chart behind the module**.
+
+Type:
+[source,hcl]
+----
+object({
+    enabled = bool
+
+    controller = optional(object({
+      replicas = optional(number, 1)
+    }), {})
+
+    application_set = optional(object({
+      replicas = optional(number, 2)
+    }), {})
+
+    server = optional(object({
+      replicas = optional(number, 2)
+      autoscaling = optional(object({
+        enabled      = bool
+        min_replicas = optional(number, 2)
+        max_replicas = optional(number, 5)
+        }), {
+        enabled = false
+      })
+    }), {})
+
+    repo_server = optional(object({
+      replicas = optional(number, 2)
+      autoscaling = optional(object({
+        enabled      = bool
+        min_replicas = optional(number, 2)
+        max_replicas = optional(number, 5)
+        }), {
+        enabled = false
+      })
+    }), {})
+
+  })
+----
+
+Default:
+[source,json]
+----
+{
+  "enabled": false
+}
+----
+
+==== [[input_oidc]] <<input_oidc,oidc>>
+
+Description: OIDC settings for the log in to the Argo CD web interface.
+
+Type: `any`
+
+Default: `null`
+
+==== [[input_rbac]] <<input_rbac,rbac>>
+
+Description: RBAC settings for the Argo CD users.
+
+Type:
+[source,hcl]
+----
+object({
+    scopes         = optional(string, "[groups, cognito:groups, roles]")
+    policy_default = optional(string, "")
+    policy_csv = optional(string, <<-EOT
+                                    g, pipeline, role:admin
+                                    g, argocd-admin, role:admin
+                                    g, modern-gitops-stack-admins, role:admin
+                                  EOT
+    )
+  })
+----
+
+Default: `{}`
+
+==== [[input_repositories]] <<input_repositories,repositories>>
+
+Description: List of repositories to add to Argo CD.
+
+Type: `map(map(string))`
+
+Default: `{}`
+
+==== [[input_ssh_known_hosts]] <<input_ssh_known_hosts,ssh_known_hosts>>
+
+Description: List of SSH known hosts to add to Argo CD.  
+
+Check the official `values.yaml` to get the format to pass this value.   
+
+IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_exec_enabled]] <<input_exec_enabled,exec_enabled>>
+
+Description: Flag to enable the web-based terminal on Argo CD. Do not forget to set the appropriate RBAC configuration to your users/groups.
+
+Type: `bool`
+
+Default: `false`
+
+==== [[input_admin_enabled]] <<input_admin_enabled,admin_enabled>>
+
+Description: Flag to indicate whether to enable the administrator user.
+
+Type: `bool`
+
+Default: `false`
+
+==== [[input_extra_accounts]] <<input_extra_accounts,extra_accounts>>
+
+Description: List of accounts for which tokens will be generated.
+
+Type: `list(string)`
+
+Default: `[]`
+
+==== [[input_repo_server_iam_role_arn]] <<input_repo_server_iam_role_arn,repo_server_iam_role_arn>>
+
+Description: IAM role ARN to associate with the argocd-repo-server ServiceAccount. This role can be used to give SOPS access to AWS KMS.
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_repo_server_azure_workload_identity_clientid]] <<input_repo_server_azure_workload_identity_clientid,repo_server_azure_workload_identity_clientid>>
+
+Description: Azure AD Workload Identity Client-ID to associate with argocd-repo-server. This role can be used to give SOPS access to a Key Vault.
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_repo_server_aadpodidbinding]] <<input_repo_server_aadpodidbinding,repo_server_aadpodidbinding>>
+
+Description: Azure AAD Pod Identity to associate with the argocd-repo-server Pod. This role can be used to give SOPS access to a Key Vault.
+
+Type: `string`
+
+Default: `null`
+
+==== [[input_helmfile_cmp_version]] <<input_helmfile_cmp_version,helmfile_cmp_version>>
+
+Description: Version of the helmfile-cmp plugin.
+
+Type: `string`
+
+Default: `"0.1.1"`
+
+==== [[input_helmfile_cmp_env_variables]] <<input_helmfile_cmp_env_variables,helmfile_cmp_env_variables>>
+
+Description: List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret].
+
+Type:
+[source,hcl]
+----
+list(object({
+    name  = optional(string)
+    value = optional(string)
+    valueFrom = optional(object({
+      secretKeyRef = optional(object({
+        name = optional(string)
+        key  = optional(string)
+      }))
+    }))
+  }))
+----
+
+Default: `[]`
+
+=== Outputs
+
+The following outputs are exported:
+
+==== [[output_id]] <<output_id,id>>
+
+Description: ID to pass other modules in order to refer to this module as a dependency.
+
+==== [[output_extra_tokens]] <<output_extra_tokens,extra_tokens>>
+
+Description: Map of extra accounts that were created and their tokens.
+// END_TF_DOCS
+
+=== Reference in table format 
+
+.Show tables
+[%collapsible]
+====
+// BEGIN_TF_TABLES
+= Requirements
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Version
+|[[requirement_terraform]] <<requirement_terraform,terraform>> |>= 1.2
+|[[requirement_argocd]] <<requirement_argocd,argocd>> |>= 5
+|[[requirement_htpasswd]] <<requirement_htpasswd,htpasswd>> |>= 1
+|[[requirement_jwt]] <<requirement_jwt,jwt>> |>= 1.1
+|[[requirement_null]] <<requirement_null,null>> |>= 3
+|[[requirement_random]] <<requirement_random,random>> |>= 3
+|[[requirement_time]] <<requirement_time,time>> |>= 0.9
+|[[requirement_utils]] <<requirement_utils,utils>> |>= 1.6
+|===
+
+= Providers
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Version
+|[[provider_null]] <<provider_null,null>> |>= 3
+|[[provider_jwt]] <<provider_jwt,jwt>> |>= 1.1
+|[[provider_time]] <<provider_time,time>> |>= 0.9
+|[[provider_random]] <<provider_random,random>> |>= 3
+|[[provider_utils]] <<provider_utils,utils>> |>= 1.6
+|[[provider_argocd]] <<provider_argocd,argocd>> |>= 5
+|===
+
+= Resources
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Type
+|https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/application[argocd_application.this] |resource
+|https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/project[argocd_project.this] |resource
+|https://registry.terraform.io/providers/camptocamp/jwt/latest/docs/resources/hashed_token[jwt_hashed_token.tokens] |resource
+|https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.dependencies] |resource
+|https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.this] |resource
+|https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid[random_uuid.jti] |resource
+|https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/static[time_static.iat] |resource
+|https://registry.terraform.io/providers/cloudposse/utils/latest/docs/data-sources/deep_merge_yaml[utils_deep_merge_yaml.values] |data source
+|===
+
+= Inputs
+
+[cols="a,a,a,a,a",options="header,autowidth"]
+|===
+|Name |Description |Type |Default |Required
+|[[input_cluster_name]] <<input_cluster_name,cluster_name>>
+|Name given to the cluster. Value used for the ingress' URL of the application.
+|`string`
+|n/a
+|yes
+
+|[[input_base_domain]] <<input_base_domain,base_domain>>
+|Base domain of the cluster. Value used for the ingress' URL of the application.
+|`string`
+|n/a
+|yes
+
+|[[input_subdomain]] <<input_subdomain,subdomain>>
+|Subdomain of the cluster. Value used for the ingress' URL of the application.
+|`string`
+|`"apps"`
+|no
+
+|[[input_argocd_project]] <<input_argocd_project,argocd_project>>
+|Name of the Argo CD AppProject where the Application should be created. If not set, the Application will be created in a new AppProject only for this Application.
+|`string`
+|`null`
+|no
+
+|[[input_argocd_labels]] <<input_argocd_labels,argocd_labels>>
+|Labels to attach to the Argo CD Application resource.
+|`map(string)`
+|`{}`
+|no
+
+|[[input_target_revision]] <<input_target_revision,target_revision>>
+|Override of target revision of the application chart.
+|`string`
+|`"v4.4.0"`
+|no
+
+|[[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
+|SSL certificate issuer to use. Usually you would configure this value as `letsencrypt-staging` or `letsencrypt-prod` on your root `*.tf` files. You can use `ca-issuer` when using the self-signed variant of cert-manager.
+|`string`
+|`"selfsigned-issuer"`
+|no
+
+|[[input_helm_values]] <<input_helm_values,helm_values>>
+|Helm chart value overrides. They should be passed as a list of HCL structures.
+|`any`
+|`[]`
+|no
+
+|[[input_app_autosync]] <<input_app_autosync,app_autosync>>
+|Automated sync options for the Argo CD Application resource.
+|
+
+[source]
+----
+object({
+    allow_empty = optional(bool)
+    prune       = optional(bool)
+    self_heal   = optional(bool)
+  })
+----
+
+|
+
+[source]
+----
+{
+  "allow_empty": false,
+  "prune": true,
+  "self_heal": true
+}
+----
+
+|no
+
+|[[input_dependency_ids]] <<input_dependency_ids,dependency_ids>>
+|n/a
+|`map(string)`
+|`{}`
+|no
+
+|[[input_resources]] <<input_resources,resources>>
+|Resource limits and requests for Argo CD's components. Follow the style on https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[official documentation] to understand the format of the values.
+
+NOTE: The `repo_server` requests and limits will be applied to all the extra containers that are deployed with the `argocd-repo-server` component (each container has the same requests and limits as the main container, **so it is cumulative**).
+
+NOTE: If you enable the HA mode using the `high_availability` variable, the values for Redis will be applied to the Redis HA chart instead of the default one.
+
+IMPORTANT: These are not production values. You should always adjust them to your needs.
+
+|
+
+[source]
+----
+object({
+
+    application_set = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    controller = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "500m")
+        memory = optional(string, "512Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    notifications = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    repo_server = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    server = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "50m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    redis = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "200m")
+        memory = optional(string, "256Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+  })
+----
+
+|`{}`
+|no
+
+|[[input_high_availability]] <<input_high_availability,high_availability>>
+|Argo CD High Availability settings. By default, the HA is disabled.
+
+To enable HA using the default replicas, simply set the value `high_availability.enabled` to `true`. **This will deploy Argo CD in HA without autoscaling.**
+
+You can enable autoscaling of the `argocd-server` and `argocd-repo-server` components by setting the `high_availability.server.autoscaling.enabled` and `high_availability.repo_server.autoscaling.enabled` values to `true`. You can also configure the minimum and maximum replicas desired or leave the default values.
+
+IMPORTANT: Activating the HA mode automatically enables the Redis HA chart which requires at least 3 worker nodes, as this chart enforces Pods to run on separate nodes.
+
+NOTE: Since this variable uses the `optional` argument to forcing the user to define all the values, there is a side effect you can pass any other bogus value and Terraform will accept it, **but they won't be used in the chart behind the module**.
+
+|
+
+[source]
+----
+object({
+    enabled = bool
+
+    controller = optional(object({
+      replicas = optional(number, 1)
+    }), {})
+
+    application_set = optional(object({
+      replicas = optional(number, 2)
+    }), {})
+
+    server = optional(object({
+      replicas = optional(number, 2)
+      autoscaling = optional(object({
+        enabled      = bool
+        min_replicas = optional(number, 2)
+        max_replicas = optional(number, 5)
+        }), {
+        enabled = false
+      })
+    }), {})
+
+    repo_server = optional(object({
+      replicas = optional(number, 2)
+      autoscaling = optional(object({
+        enabled      = bool
+        min_replicas = optional(number, 2)
+        max_replicas = optional(number, 5)
+        }), {
+        enabled = false
+      })
+    }), {})
+
+  })
+----
+
+|
+
+[source]
+----
+{
+  "enabled": false
+}
+----
+
+|no
+
+|[[input_oidc]] <<input_oidc,oidc>>
+|OIDC settings for the log in to the Argo CD web interface.
+|`any`
+|`null`
+|no
+
+|[[input_rbac]] <<input_rbac,rbac>>
+|RBAC settings for the Argo CD users.
+|
+
+[source]
+----
+object({
+    scopes         = optional(string, "[groups, cognito:groups, roles]")
+    policy_default = optional(string, "")
+    policy_csv = optional(string, <<-EOT
+                                    g, pipeline, role:admin
+                                    g, argocd-admin, role:admin
+                                    g, modern-gitops-stack-admins, role:admin
+                                  EOT
+    )
+  })
+----
+
+|`{}`
+|no
+
+|[[input_repositories]] <<input_repositories,repositories>>
+|List of repositories to add to Argo CD.
+|`map(map(string))`
+|`{}`
+|no
+
+|[[input_ssh_known_hosts]] <<input_ssh_known_hosts,ssh_known_hosts>>
+|List of SSH known hosts to add to Argo CD.
+    
+Check the official `values.yaml` to get the format to pass this value.
+    
+IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
+
+|`string`
+|`null`
+|no
+
+|[[input_exec_enabled]] <<input_exec_enabled,exec_enabled>>
+|Flag to enable the web-based terminal on Argo CD. Do not forget to set the appropriate RBAC configuration to your users/groups.
+|`bool`
+|`false`
+|no
+
+|[[input_admin_enabled]] <<input_admin_enabled,admin_enabled>>
+|Flag to indicate whether to enable the administrator user.
+|`bool`
+|`false`
+|no
+
+|[[input_accounts_pipeline_tokens]] <<input_accounts_pipeline_tokens,accounts_pipeline_tokens>>
+|API token for pipeline account.
+|`string`
+|n/a
+|yes
+
+|[[input_server_secretkey]] <<input_server_secretkey,server_secretkey>>
+|Signature key for session validation. *Must reuse the bootstrap output containing the secretkey.*
+|`string`
+|n/a
+|yes
+
+|[[input_extra_accounts]] <<input_extra_accounts,extra_accounts>>
+|List of accounts for which tokens will be generated.
+|`list(string)`
+|`[]`
+|no
+
+|[[input_repo_server_iam_role_arn]] <<input_repo_server_iam_role_arn,repo_server_iam_role_arn>>
+|IAM role ARN to associate with the argocd-repo-server ServiceAccount. This role can be used to give SOPS access to AWS KMS.
+|`string`
+|`null`
+|no
+
+|[[input_repo_server_azure_workload_identity_clientid]] <<input_repo_server_azure_workload_identity_clientid,repo_server_azure_workload_identity_clientid>>
+|Azure AD Workload Identity Client-ID to associate with argocd-repo-server. This role can be used to give SOPS access to a Key Vault.
+|`string`
+|`null`
+|no
+
+|[[input_repo_server_aadpodidbinding]] <<input_repo_server_aadpodidbinding,repo_server_aadpodidbinding>>
+|Azure AAD Pod Identity to associate with the argocd-repo-server Pod. This role can be used to give SOPS access to a Key Vault.
+|`string`
+|`null`
+|no
+
+|[[input_helmfile_cmp_version]] <<input_helmfile_cmp_version,helmfile_cmp_version>>
+|Version of the helmfile-cmp plugin.
+|`string`
+|`"0.1.1"`
+|no
+
+|[[input_helmfile_cmp_env_variables]] <<input_helmfile_cmp_env_variables,helmfile_cmp_env_variables>>
+|List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret].
+|
+
+[source]
+----
+list(object({
+    name  = optional(string)
+    value = optional(string)
+    valueFrom = optional(object({
+      secretKeyRef = optional(object({
+        name = optional(string)
+        key  = optional(string)
+      }))
+    }))
+  }))
+----
+
+|`[]`
+|no
+
+|===
+
+= Outputs
+
+[cols="a,a",options="header,autowidth"]
+|===
+|Name |Description
+|[[output_id]] <<output_id,id>> |ID to pass other modules in order to refer to this module as a dependency.
+|[[output_extra_tokens]] <<output_extra_tokens,extra_tokens>> |Map of extra accounts that were created and their tokens.
+|===
+// END_TF_TABLES
+====
