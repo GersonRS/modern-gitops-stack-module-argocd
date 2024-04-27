@@ -80,7 +80,7 @@ module "argocd" {
 }
 ----
 
-TIP: The sources can also be configured using the xref:application:ROOT:README.adoc[Application] and xref:applicationset:ROOT:README.adoc[ApplicationSet] modules.
+TIP: The sources can also be configured using the modules.
 
 You can also overload the `policy.csv` as shown in the following example:
 
