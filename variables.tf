@@ -34,7 +34,7 @@ variable "argocd_labels" {
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
-  default     = "v2.1.0" # x-release-please-version
+  default     = "v2.2.0" # x-release-please-version
 }
 
 variable "cluster_issuer" {
@@ -238,9 +238,9 @@ variable "repositories" {
 variable "ssh_known_hosts" {
   description = <<-EOT
     List of SSH known hosts to add to Argo CD.
-    
-    Check the official `values.yaml` to get the format to pass this value. 
-    
+
+    Check the official `values.yaml` to get the format to pass this value.
+
     IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
   EOT
   type        = string
