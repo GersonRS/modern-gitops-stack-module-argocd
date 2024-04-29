@@ -15,5 +15,3 @@ _In most cases, you can leave out details about how a change has been made. Code
 * [ ] KinD
 * [ ] AKS (Azure)
 * [ ] EKS (AWS)
-* [ ] Scaleway
-* [ ] SKS (Exoscale)
