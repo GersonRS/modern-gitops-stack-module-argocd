@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.1.0...v2.2.0) (2024-04-29)
+
+
+### Features
+
+* add pre-commit config ([a65220c](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/a65220c2f6021efb1e3f13217d904128907a9b92))
+* update pull request template and commit-conventional's configuration ([d1206f0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/d1206f082c1daa3e6245a1493e804f26b35100a5))
+
 ## [2.1.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.0.0...v2.1.0) (2024-04-26)
 
 
