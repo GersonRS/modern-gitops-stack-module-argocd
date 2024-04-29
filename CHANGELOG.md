@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.2.0...v2.3.0) (2024-04-29)
+
+
+### Features
+
+* update version ([36f5f34](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/36f5f343b5d29dfc046852a2182ed2c1ed65f4b1))
+
 ## [2.2.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.1.0...v2.2.0) (2024-04-29)
 
 
