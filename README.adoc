@@ -310,7 +310,7 @@ Description: Override of target revision of the application chart.
 
 Type: `string`
 
-Default: `"v2.1.0"`
+Default: `"v2.2.0"`
 
 ==== [[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
 
@@ -544,9 +544,9 @@ Default: `{}`
 
 ==== [[input_ssh_known_hosts]] <<input_ssh_known_hosts,ssh_known_hosts>>
 
-Description: List of SSH known hosts to add to Argo CD.  
+Description: List of SSH known hosts to add to Argo CD.
 
-Check the official `values.yaml` to get the format to pass this value.   
+Check the official `values.yaml` to get the format to pass this value.
 
 IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
 
@@ -731,7 +731,7 @@ Description: Map of extra accounts that were created and their tokens.
 |[[input_target_revision]] <<input_target_revision,target_revision>>
 |Override of target revision of the application chart.
 |`string`
-|`"v2.1.0"`
+|`"v2.2.0"`
 |no
 
 |[[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
@@ -962,9 +962,9 @@ object({
 
 |[[input_ssh_known_hosts]] <<input_ssh_known_hosts,ssh_known_hosts>>
 |List of SSH known hosts to add to Argo CD.
-    
+
 Check the official `values.yaml` to get the format to pass this value.
-    
+
 IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
 
 |`string`
