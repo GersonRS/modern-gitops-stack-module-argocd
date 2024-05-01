@@ -3,9 +3,9 @@
 :argo-cd-chart-version: 5.27.1
 :chart-url: https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
 
-A https://modern-gitops-stack.io[Modern GitOps Stack] module to deploy and configure https://argo-cd.readthedocs.io/[Argo CD].
+A https://gersonrs.github.io/modern-gitops-stack/[Modern GitOps Stack] module to deploy and configure https://argo-cd.readthedocs.io/[Argo CD].
 
-The Argo CD chart used by this module is shipped in this repository as well, in order to avoid any unwanted behaviors caused by unsupported versions. 
+The Argo CD chart used by this module is shipped in this repository as well, in order to avoid any unwanted behaviors caused by unsupported versions.
 
 [cols="1,1,1",options="autowidth,header"]
 |===
@@ -644,7 +644,7 @@ Description: ID to pass other modules in order to refer to this module as a depe
 Description: Map of extra accounts that were created and their tokens.
 // END_TF_DOCS
 
-=== Reference in table format 
+=== Reference in table format
 
 .Show tables
 [%collapsible]
