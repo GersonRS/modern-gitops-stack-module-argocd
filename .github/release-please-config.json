@@ -3,8 +3,6 @@
   "packages": {
     ".": {
       "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": false,
-      "changelog-path": "CHANGELOG.md",
       "changelog-sections": [
         {
           "hidden": false,
@@ -72,11 +70,9 @@
           "type": "ci"
         }
       ],
-      "draft": false,
       "extra-files": [
-        "variable.tf"
+        "variables.tf"
       ],
-      "prerelease": false,
       "release-type": "simple"
     }
   }
