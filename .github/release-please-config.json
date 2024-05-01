@@ -4,6 +4,5 @@
   "extra-files": [
     "variables.tf"
   ],
-  "pull-request-title-pattern": "chore: release ${version}",
-  "release-type": "simple"
+  "pull-request-title-pattern": "chore: release ${version}"
 }
