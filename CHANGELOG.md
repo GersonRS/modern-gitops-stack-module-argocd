@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.4.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.3.0...v2.4.0) (2024-05-01)
+
+
+### Features
+
+* adjust chart update workflow ([9d91011](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/9d91011ae59ff69632f94a880d85c426450802c3))
+* adjust documentation links ([e438a0e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e438a0ee26505434996eda19dfc9d67dc71acfb4))
+* adjust release-please config file ([adf116e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/adf116eb984525517f651397538ec0543433a61f))
+* configurated dependabot ([0280bc2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/0280bc29b7d3efa8fadb5b86afe9ad0edc847d80))
+* fix pre-commit config file ([079858e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/079858e6193c7834268b5f977e7cd565772ba3e5))
+
 ## [2.3.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.2.0...v2.3.0) (2024-04-29)
 
 
