@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.5.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.4.0...v2.5.0) (2024-05-01)
+
+
+### 🚀 New Features
+
+* add new configuration in release-please file config ([a772c93](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/a772c938c2ce053643c0ae9cc26f7f0154aceec1))
+* adjust release-please configuration ([c33f091](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c33f09138c85ec4b651b0604d6973da77de66ad2))
+* adjust version ([d6aac1b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/d6aac1bbcaf815e731471579d9e76be51d792426))
+* change chart update to include secrets ([64c6c0e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/64c6c0e33b8e44957c6a3e6f1385cb5017ffe937))
+* config release-please ([459ff62](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/459ff62f96eeaef543bb25a1586b968c007d7aa0))
+* config release-please ([c05992a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c05992a156a1217c6a82fae446d1c9aef785383d))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([ba6f9c0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ba6f9c0c4f9fc8e0bcbef58931d859c86fa99633))
+* **terraform-docs:** generate docs and write to README.adoc ([adde402](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/adde4029f566d3856f5f3e16234c0a570f7ae2b1))
+* **terraform-docs:** generate docs and write to README.adoc ([ac40bbb](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ac40bbbb0a0b72f01e7b6666171a6d5d07a50b01))
+* **terraform-docs:** generate docs and write to README.adoc ([c711bf3](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c711bf38a4136e22e050350cb78001a9cafec6ab))
+* **terraform-docs:** generate docs and write to README.adoc ([c34bccd](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c34bccdc086fc7f22a599580ab828e0a644a9c7d))
+
+
+### ⚙️ Chores
+
+* release 2.4.0 ([ea8dd33](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ea8dd3355a4e60151652c54a154d14b4906dec88))
+
 ## [2.4.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.3.0...v2.4.0) (2024-05-01)
 
 
