@@ -70,9 +70,12 @@ jobs:
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
           labels: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}"
         with:
+          token: ${{ secrets.PAT }}
           base: ${{ github.head_ref }}
           signoff: true
-          reviewers: ["GersonRS"]
+          assignees: GersonRS
+          reviewers: GersonRS
+          delete-branch: true
           commit-message: ${{ env.pr-title }}
           author: ${{ env.author }}
           committer: ${{ env.author }}
@@ -98,9 +101,12 @@ jobs:
           # unlike the previous step, which can either be a patch, minor or major update.
           pr-title: "feat(chart)!: major update of dependencies on argocd chart"
         with:
+          token: ${{ secrets.PAT }}
           base: ${{ github.head_ref }}
           signoff: true
-          reviewers: ["GersonRS"]
+          assignees: GersonRS
+          reviewers: GersonRS
+          delete-branch: true
           commit-message: ${{ env.pr-title }}
           author: ${{ env.author }}
           committer: ${{ env.author }}
@@ -152,9 +158,12 @@ jobs:
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
           labels: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}"
         with:
+          token: ${{ secrets.PAT }}
           base: ${{ github.head_ref }}
           signoff: true
-          reviewers: ["GersonRS"]
+          assignees: GersonRS
+          reviewers: GersonRS
+          delete-branch: true
           commit-message: ${{ env.pr-title }}
           author: ${{ env.author }}
           committer: ${{ env.author }}
@@ -180,9 +189,12 @@ jobs:
           # unlike the previous step, which can either be a patch, minor or major update.
           pr-title: "feat(chart)!: major update of dependencies on argocd chart"
         with:
+          token: ${{ secrets.PAT }}
           base: ${{ github.head_ref }}
           signoff: true
-          reviewers: ["GersonRS"]
+          assignees: GersonRS
+          reviewers: GersonRS
+          delete-branch: true
           commit-message: ${{ env.pr-title }}
           author: ${{ env.author }}
           committer: ${{ env.author }}
