@@ -3,6 +3,49 @@
 ## [2.4.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.3.0...v2.4.0) (2024-05-01)
 
 
+### 🚀 New Features
+
+* add new configuration in release-please file config ([a772c93](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/a772c938c2ce053643c0ae9cc26f7f0154aceec1))
+* adjust chart update workflow ([9d91011](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/9d91011ae59ff69632f94a880d85c426450802c3))
+* adjust documentation links ([e438a0e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e438a0ee26505434996eda19dfc9d67dc71acfb4))
+* adjust release-please config file ([adf116e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/adf116eb984525517f651397538ec0543433a61f))
+* adjust release-please configuration ([c33f091](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c33f09138c85ec4b651b0604d6973da77de66ad2))
+* adjust version ([d6aac1b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/d6aac1bbcaf815e731471579d9e76be51d792426))
+* config release-please ([459ff62](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/459ff62f96eeaef543bb25a1586b968c007d7aa0))
+* config release-please ([c05992a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c05992a156a1217c6a82fae446d1c9aef785383d))
+* configurated dependabot ([0280bc2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/0280bc29b7d3efa8fadb5b86afe9ad0edc847d80))
+* fix pre-commit config file ([079858e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/079858e6193c7834268b5f977e7cd565772ba3e5))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([adde402](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/adde4029f566d3856f5f3e16234c0a570f7ae2b1))
+* **terraform-docs:** generate docs and write to README.adoc ([ac40bbb](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ac40bbbb0a0b72f01e7b6666171a6d5d07a50b01))
+* **terraform-docs:** generate docs and write to README.adoc ([c711bf3](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c711bf38a4136e22e050350cb78001a9cafec6ab))
+* **terraform-docs:** generate docs and write to README.adoc ([c34bccd](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/c34bccdc086fc7f22a599580ab828e0a644a9c7d))
+* **terraform-docs:** generate docs and write to README.adoc ([96bdd0a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/96bdd0a8734d4f1879bc4144e074da6b0aa2cb37))
+* **terraform-docs:** generate docs and write to README.adoc ([d84e98d](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/d84e98dd52bf433509cdbf07a0dbdf18a3bf52fb))
+* **terraform-docs:** generate docs and write to README.adoc ([e4c465a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e4c465a7dd919c0796021eeb58addb5c013e74c6))
+* **terraform-docs:** generate docs and write to README.adoc ([5f4aae3](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/5f4aae3abbce9057f056d34469e0c912ccfc80eb))
+* **terraform-docs:** generate docs and write to README.adoc ([41f13a8](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/41f13a8832a961a27e42b7d55c908fe5fbf7abd4))
+* **terraform-docs:** generate docs and write to README.adoc ([b6c73e7](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/b6c73e752513f109503b69b0b917dd0cb61db66a))
+* **terraform-docs:** generate docs and write to README.adoc ([ce4a2e2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ce4a2e282679d1d121fd9fe679a177f53ec0dc42))
+
+
+### ⚙️ Chores
+
+* **main:** release 2.4.0 ([b1639f8](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/b1639f8e63538853332e7d1e99a10a61d4ddd23a))
+
+
+### ⌨️ Code Refactoring
+
+* adjust pre-commit ([0c0eddc](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/0c0eddcf032ebabb8d4bef15117d5a04b05543f6))
+* adjust pre-commit and fix release-please workflow ([a5bfaf6](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/a5bfaf635ec6c590cfd81b939e013aacef684b98))
+* adjust pre-commit to exclude bootstrap folder ([a0bfdb0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/a0bfdb065b06a825097c6172f7586ea7cf742581))
+
+## [2.4.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.3.0...v2.4.0) (2024-05-01)
+
+
 ### Features
 
 * adjust chart update workflow ([9d91011](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/9d91011ae59ff69632f94a880d85c426450802c3))
