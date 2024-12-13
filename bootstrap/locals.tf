@@ -85,11 +85,8 @@ locals {
           }
         }
       ]
-      server = {
-        extraArgs = [
-          "--insecure",
-        ]
-        config = {
+      configs = {
+        cm = {
           "admin.enabled"           = "true" # autogenerates password, see `argocd-initial-admin-secret`
           "accounts.pipeline"       = "apiKey"
           "resource.customizations" = <<-EOT
@@ -114,15 +111,16 @@ locals {
                 return hs
           EOT
         }
-      }
-      configs = {
+        params = {
+          "server.insecure" = "true"
+        }
         rbac = {
           scopes           = "[groups, cognito:groups, roles]"
           "policy.default" = ""
           "policy.csv"     = <<-EOT
                               g, pipeline, role:admin
                               g, argocd-admin, role:admin
-                              g, modern-gitops-stack-admins, role:admin
+                              g, devops-stack-admins, role:admin
                               EOT
         }
         secret = {
