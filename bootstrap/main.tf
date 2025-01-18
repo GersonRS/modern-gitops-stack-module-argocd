@@ -31,7 +31,7 @@ resource "helm_release" "argocd" {
   }
 }
 
-resource "argocd_project" "devops_stack_applications" {
+resource "argocd_project" "modern_gitops_stack_applications" {
   for_each = var.argocd_projects
 
   metadata {
@@ -40,7 +40,7 @@ resource "argocd_project" "devops_stack_applications" {
   }
 
   spec {
-    description  = "DevOps Stack applications in cluster ${each.value.destination_cluster}"
+    description  = "Modern GitOps Stack applications in cluster ${each.value.destination_cluster}"
     source_repos = each.value.allowed_source_repos
 
     dynamic "destination" {
@@ -72,6 +72,6 @@ resource "null_resource" "this" {
   depends_on = [
     resource.helm_release.argocd,
     resource.random_password.argocd_server_secretkey,
-    resource.argocd_project.devops_stack_applications,
+    resource.argocd_project.modern_gitops_stack_applications,
   ]
 }
