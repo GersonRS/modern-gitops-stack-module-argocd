@@ -128,6 +128,28 @@ variable "resources" {
       }), {})
     }), {})
 
+    kustomized_helm_cmp = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
+    helmfile_cmp = optional(object({
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+
     server = optional(object({
       requests = optional(object({
         cpu    = optional(string, "50m")
@@ -298,7 +320,7 @@ variable "repo_server_aadpodidbinding" {
 variable "helmfile_cmp_version" {
   description = "Version of the helmfile-cmp plugin."
   type        = string
-  default     = "0.1.1"
+  default     = "0.1.2"
 }
 
 variable "helmfile_cmp_env_variables" {

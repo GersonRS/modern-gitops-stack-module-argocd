@@ -1,6 +1,6 @@
 = Argo CD Bootstrap Module
 
-This module is used to bootstrap the Argo CD that will deploy the rest of the Modern GitOps Stack modules on a first deployment of a cluster.
+This module is used to bootstrap the Argo CD that will deploy the rest of the DevOps Stack modules on a first deployment of a cluster.
 
 The Argo CD installed is the same as the one deployed by the Argo CD module, however *this module deploys it using the Helm provider for Terraform*, since the Argo CD provider cannot be obviously used until it installed.
 
@@ -18,7 +18,7 @@ module "argocd_bootstrap" {
 }
 ----
 
-Do not forget to add the Argo CD provider settings, which is needed to deploy all the other modules, since they this Terraform to deploy the Argo CD applications: 
+Do not forget to add the Argo CD provider settings, which is needed to deploy all the other modules, since they this Terraform to deploy the Argo CD applications:
 
 [source,terraform]
 ----
@@ -36,7 +36,7 @@ provider "argocd" {
 
 === Unified AppProject
 
-By default, all the modules of the Modern GitOps Stack create their own AppProject to deploy the Argo CD Application deployed by the module. *Since the version 3.5.0* of this module, the bootstrap module now supports creating AppProjects for a given map of projects passed in the variable `argocd_projects`. The Modern GitOps Stack modules then can be configured to use this unified AppProject instead of creating on for each application.
+By default, all the modules of the DevOps Stack create their own AppProject to deploy the Argo CD Application deployed by the module. *Since the version 3.5.0* of this module, the bootstrap module now supports creating AppProjects for a given map of projects passed in the variable `argocd_projects`. The DevOps Stack modules then can be configured to use this unified AppProject instead of creating on for each application.
 
 TIP: By default, the AppProjects created by this module do not contain restrictions for the destination namespace or source repositories, but you can change that behavior by configuring the `allowed_source_repos` and `allowed_namespaces` values on the `argocd_projects` map.
 
@@ -48,7 +48,7 @@ This process requires a few manual steps, because Terraform will try to delete t
 
 2. Use the Argo CD web interface or edit the Application objects using K9s or `kubectl` and move each Application to the new project you created.
 
-3. Modify the module instantiations for each module and add the `argocd_project` variable to set the Application to use the new AppProject. 
+3. Modify the module instantiations for each module and add the `argocd_project` variable to set the Application to use the new AppProject.
 
 4. Run a `terraform apply` again. This time, the only changes you should see is the deletion of the old AppProjects.
 
@@ -97,7 +97,7 @@ The following providers are used by this module:
 
 The following resources are used by this module:
 
-- https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/project[argocd_project.modern_gitops_stack_applications] (resource)
+- https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs/resources/project[argocd_project.devops_stack_applications] (resource)
 - https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release[helm_release.argocd] (resource)
 - https://registry.terraform.io/providers/camptocamp/jwt/latest/docs/resources/hashed_token[jwt_hashed_token.argocd] (resource)
 - https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.this] (resource)
@@ -112,7 +112,7 @@ The following input variables are optional (have default values):
 
 ==== [[input_argocd_projects]] <<input_argocd_projects,argocd_projects>>
 
-Description: List of AppProject definitions to be created in Argo CD. By default, no projects are created since this variable defaults to an empty map.  
+Description: List of AppProject definitions to be created in Argo CD. By default, no projects are created since this variable defaults to an empty map.
 
 At a minimum, you need to provide the `destination_cluster` value, so that the destination cluster can be defined in the project. The name of the project is derived from the key of the map.
 
@@ -175,7 +175,7 @@ Description: The token to set in `ARGOCD_AUTH_TOKEN` environment variable. May b
 Description: The Argo CD accounts pipeline tokens.
 // END_TF_DOCS
 
-=== Reference in table format 
+=== Reference in table format
 
 .Show tables
 [%collapsible]
@@ -201,9 +201,9 @@ Description: The Argo CD accounts pipeline tokens.
 [cols="a,a",options="header,autowidth"]
 |===
 |Name |Version
+|[[provider_random]] <<provider_random,random>> |>= 3
 |[[provider_jwt]] <<provider_jwt,jwt>> |>= 1.1
 |[[provider_time]] <<provider_time,time>> |>= 0.9
-|[[provider_random]] <<provider_random,random>> |>= 3
 |[[provider_helm]] <<provider_helm,helm>> |>= 2
 |[[provider_argocd]] <<provider_argocd,argocd>> |>= 6
 |[[provider_utils]] <<provider_utils,utils>> |>= 1.6
@@ -215,7 +215,7 @@ Description: The Argo CD accounts pipeline tokens.
 [cols="a,a",options="header,autowidth"]
 |===
 |Name |Type
-|https://registry.terraform.io/providers/oboukili/argocd/latest/docs/resources/project[argocd_project.modern_gitops_stack_applications] |resource
+|https://registry.terraform.io/providers/argoproj-labs/argocd/latest/docs/resources/project[argocd_project.devops_stack_applications] |resource
 |https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release[helm_release.argocd] |resource
 |https://registry.terraform.io/providers/camptocamp/jwt/latest/docs/resources/hashed_token[jwt_hashed_token.argocd] |resource
 |https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource[null_resource.this] |resource
@@ -232,7 +232,7 @@ Description: The Argo CD accounts pipeline tokens.
 |Name |Description |Type |Default |Required
 |[[input_argocd_projects]] <<input_argocd_projects,argocd_projects>>
 |List of AppProject definitions to be created in Argo CD. By default, no projects are created since this variable defaults to an empty map.
-    
+
 At a minimum, you need to provide the `destination_cluster` value, so that the destination cluster can be defined in the project. The name of the project is derived from the key of the map.
 
 *The first cluster in the list should always be your main cluster where the Argo CD will be deployed, and the destination cluster for that project must be `in-cluster`.*
