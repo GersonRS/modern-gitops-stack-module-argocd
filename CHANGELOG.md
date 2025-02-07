@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.8.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.7.0...v2.8.0) (2025-02-07)
+
+
+### 🚀 New Features
+
+* **chart:** minor update of dependencies on argocd chart ([3ba103b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/3ba103b029318c6601ddb107733dc64833fa91e0))
+* **chart:** patch update of dependencies on argocd chart ([ff68c70](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ff68c7001ac60b33fe9a3ed62d566af08db730e9))
+* **chart:** patch update of dependencies on argocd chart ([3568666](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/3568666419bcbd5d71ec7a6fb4f62f4714a24004))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([bb4f30f](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/bb4f30fc2e7ab96541c5b74476833f6b41528d80))
+* **terraform-docs:** generate docs and write to README.adoc ([f29a9ea](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f29a9ead318110510d9651fb48b72e7ecdb41ba3))
+* **terraform-docs:** generate docs and write to README.adoc ([9c5afa6](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/9c5afa6504d1a6f132ab9caa6ed3027b8a393491))
+* **terraform-docs:** generate docs and write to README.adoc ([44fa20d](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/44fa20dcb9fafdb0001989ea78d1e34edc088368))
+* **terraform-docs:** generate docs and write to README.adoc ([f50dde7](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f50dde711e0c54cb3e003ebe4cf7723e9bf3fc72))
+
 ## [2.7.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.6.1...v2.7.0) (2025-01-21)
 
 
