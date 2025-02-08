@@ -9,3 +9,5 @@ on:
 jobs:
   release:
     uses: GersonRS/modern-gitops-stack/.github/workflows/modules-release-please.yaml@main
+    secrets:
+      PAT: ${{ secrets.PAT }}
