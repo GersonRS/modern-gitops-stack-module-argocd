@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.9.1](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.0...v2.9.1) (2025-02-08)
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([e090b02](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e090b02f439c7f46f06092164f08cf020f463e35))
+
+
+### ⌨️ Code Refactoring
+
+* adjust workflows ([21d3cd0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/21d3cd0311bf65ca608d8d290b91c14d52720823))
+
 ## [2.9.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.8.0...v2.9.0) (2025-02-08)
 
 
