@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.9.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.8.0...v2.9.0) (2025-02-08)
+
+
+### 🚀 New Features
+
+* **chart:** patch update of dependencies on argocd chart ([03af068](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/03af0686ecc0701db34b6082c258fac9f9f07f55))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([74cd96b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/74cd96b2ed31099eab1611a14ed06e64706927dc))
+* **terraform-docs:** generate docs and write to README.adoc ([db7645a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/db7645adfc36f80f4f5f16c6778c9a2f9d2b045b))
+
+
+### ⌨️ Code Refactoring
+
+* adjust schedule cron chart-update workflow ([cb5f8f2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/cb5f8f27ea32efcfb2f10a78fbf34c7d5bb964cd))
+
 ## [2.8.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.7.0...v2.8.0) (2025-02-07)
 
 
