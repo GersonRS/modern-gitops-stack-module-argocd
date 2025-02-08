@@ -1,5 +1,50 @@
 # Changelog
 
+## [2.8.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.7.0...v2.8.0) (2025-02-07)
+
+
+### 🚀 New Features
+
+* **chart:** minor update of dependencies on argocd chart ([3ba103b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/3ba103b029318c6601ddb107733dc64833fa91e0))
+* **chart:** patch update of dependencies on argocd chart ([ff68c70](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ff68c7001ac60b33fe9a3ed62d566af08db730e9))
+* **chart:** patch update of dependencies on argocd chart ([3568666](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/3568666419bcbd5d71ec7a6fb4f62f4714a24004))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([bb4f30f](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/bb4f30fc2e7ab96541c5b74476833f6b41528d80))
+* **terraform-docs:** generate docs and write to README.adoc ([f29a9ea](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f29a9ead318110510d9651fb48b72e7ecdb41ba3))
+* **terraform-docs:** generate docs and write to README.adoc ([9c5afa6](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/9c5afa6504d1a6f132ab9caa6ed3027b8a393491))
+* **terraform-docs:** generate docs and write to README.adoc ([44fa20d](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/44fa20dcb9fafdb0001989ea78d1e34edc088368))
+* **terraform-docs:** generate docs and write to README.adoc ([f50dde7](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f50dde711e0c54cb3e003ebe4cf7723e9bf3fc72))
+
+## [2.7.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.6.1...v2.7.0) (2025-01-21)
+
+
+### 🚀 New Features
+
+* **chart:** minor update of dependencies on argocd chart ([f3845e6](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f3845e64217aca0574db152ca7436d3eaa3d7377))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([04995ed](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/04995ed7c76a5af67992d59b62a9e52bcf9325da))
+
+## [2.6.1](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.6.0...v2.6.1) (2025-01-18)
+
+
+### 🔥 Bug Fixes
+
+* fix resource name ([53ea885](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/53ea885459a7de3c2a033fd6fb2fd00d52c1b07f))
+
+## [2.6.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.5.0...v2.6.0) (2025-01-18)
+
+
+### 🚀 New Features
+
+* update module ([bd6827e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/bd6827ebbb4a92d0f69b264e5d808f11c3943ee8))
+* update project ([1c28278](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/1c28278cd1faabaf151902e12f376b9b22b5b5fe))
+
 ## [2.5.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.4.0...v2.5.0) (2024-05-01)
 
 
