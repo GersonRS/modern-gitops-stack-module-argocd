@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.2...v2.10.0) (2025-02-08)
+
+
+### 🚀 New Features
+
+* rollback argo version ([e304d6b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e304d6b3939ead2d777d63a0fd5419eb341317e6))
+
 ## [2.9.2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.1...v2.9.2) (2025-02-08)
 
 
