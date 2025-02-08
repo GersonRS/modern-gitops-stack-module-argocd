@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.1...v2.9.2) (2025-02-08)
+
+
+### ⌨️ Code Refactoring
+
+* adjust workflows ([34a4f44](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/34a4f445ac3b5c41ee7d36ebd3936cb621d1d384))
+* try adjust code 5 ([241257a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/241257a20b7926268957794357eb5ebdbb19958b))
+
 ## [2.9.1](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.0...v2.9.1) (2025-02-08)
 
 
