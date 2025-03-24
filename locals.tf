@@ -238,9 +238,9 @@ locals {
           limits   = { for k, v in var.resources.repo_server.limits : k => v if v != null }
         }
         metrics = {
-          enabled = true
+          enabled = var.enable_service_monitor
           serviceMonitor = {
-            enabled = true
+            enabled = var.enable_service_monitor
           }
         }
         volumes         = local.repo_server_volumes
