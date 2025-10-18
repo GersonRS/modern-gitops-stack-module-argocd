@@ -30,3 +30,8 @@ output "argocd_accounts_pipeline_tokens" {
   value       = local.argocd_accounts_pipeline_tokens
   sensitive   = true
 }
+
+output "configured_repositories" {
+  description = "List of repository URLs that were configured in Argo CD."
+  value       = var.repositories
+}
