@@ -1,8 +1,7 @@
 
 locals {
-  argocd_version                  = yamldecode(file("${path.module}/chart-version.yaml")).appVersion
-  argocd_hostname_withclustername = format("argocd.%s.%s", trimprefix("${var.subdomain}.${var.cluster_name}", "."), var.base_domain)
-  argocd_hostname                 = format("argocd.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  argocd_version  = yamldecode(file("${path.root}/charts/argocd/chart-version.yaml")).appVersion
+  argocd_hostname = format("argocd.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
 
   jwt_tokens = {
     for account in var.extra_accounts : account => {
@@ -154,7 +153,7 @@ locals {
         repositories = var.repositories
         } : null, {
         cm = merge({ for account in var.extra_accounts : format("accounts.%s", account) => "apiKey" }, {
-          "url"                           = "https://${local.argocd_hostname_withclustername}"
+          "url"                           = "https://${local.argocd_hostname}"
           "accounts.pipeline"             = "apiKey"
           "admin.enabled"                 = var.admin_enabled
           "exec.enabled"                  = var.exec_enabled
@@ -217,9 +216,9 @@ locals {
           limits   = { for k, v in var.resources.controller.limits : k => v if v != null }
         }
         metrics = {
-          enabled = true
+          enabled = var.enable_service_monitor
           serviceMonitor = {
-            enabled = true
+            enabled = var.enable_service_monitor
           }
         }
       }
@@ -269,27 +268,20 @@ locals {
             "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
             "traefik.ingress.kubernetes.io/router.tls"         = "true"
           }
-          hostname = local.argocd_hostname_withclustername
-          extraHosts = [
-            {
-              name = local.argocd_hostname
-              path = "/"
-            }
-          ]
+          hostname = local.argocd_hostname
           extraTls = [
             {
               hosts = [
-                local.argocd_hostname,
-                local.argocd_hostname_withclustername
+                local.argocd_hostname
               ]
               secretName = "argocd-tls"
             }
           ]
         }
         metrics = {
-          enabled = true
+          enabled = var.enable_service_monitor
           serviceMonitor = {
-            enabled = true
+            enabled = var.enable_service_monitor
           }
         }
       }

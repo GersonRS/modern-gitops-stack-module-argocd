@@ -64,15 +64,12 @@ resource "argocd_project" "modern_gitops_stack_applications" {
 }
 
 resource "argocd_repository" "private" {
-  for_each = var.ssh_private_key != null ? toset(var.repositories) : toset([])
-
-  name            = replace(replace(replace(each.value, "https://github.com/", ""), "git@github.com:", ""), ".git", "")
+  for_each        = length(var.repositories) > 0 ? toset(var.repositories) : toset([])
+  name            = replace(regex(".*/(.*-module-.*)$", replace(each.value, ".git", ""))[0], "modern-gitops-stack", "")
   repo            = each.value
-  username        = "GersonRS"
   ssh_private_key = var.ssh_private_key
-  project         = "in-cluster"
+  project         = length(var.argocd_projects) > 0 ? keys(var.argocd_projects)[0] : "default"
   insecure        = true
-
   depends_on = [
     resource.argocd_project.modern_gitops_stack_applications,
   ]
@@ -88,5 +85,6 @@ resource "null_resource" "this" {
     resource.helm_release.argocd,
     resource.random_password.argocd_server_secretkey,
     resource.argocd_project.modern_gitops_stack_applications,
+    resource.argocd_repository.private,
   ]
 }
