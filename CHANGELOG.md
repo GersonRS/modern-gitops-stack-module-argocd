@@ -1,5 +1,75 @@
 # Changelog
 
+## [3.0.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.10.0...v3.0.0) (2025-10-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **chart:** major update of dependencies on argocd chart
+
+### 🚀 New Features
+
+* **chart:** major update of dependencies on argocd chart ([a68ba45](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/a68ba458093c24a1c490b5888b662fc5ff5d5a6e))
+* **chart:** minor update of dependencies on argocd chart ([69d753f](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/69d753fcc030346fa82b14554a339b05ed68bf9b))
+* **chart:** minor update of dependencies on argocd chart ([088f4f6](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/088f4f6ad5aaaa9e7497015e6c2f3a132d5895ce))
+
+
+### 🔥 Bug Fixes
+
+* adjust namespace output ([2afa0a8](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/2afa0a8b882476e55108a558562a10b7ea117cc6))
+* remove copilot-instructions.md ([2886268](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/2886268042f9af339d7612cfc1ea8914a5d79f46))
+
+
+### 🛠️ Build System
+
+* **deps:** bump actions/checkout from 4 to 5 ([1761260](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/176126022d00f36af4d3ce8f839fdb12b70520a7))
+* **deps:** bump actions/checkout from 4 to 5 ([74ec67c](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/74ec67c8c978d7382d198401da6dfe806f8180f1))
+
+## [2.10.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.2...v2.10.0) (2025-02-08)
+
+
+### 🚀 New Features
+
+* rollback argo version ([e304d6b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e304d6b3939ead2d777d63a0fd5419eb341317e6))
+
+## [2.9.2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.1...v2.9.2) (2025-02-08)
+
+
+### ⌨️ Code Refactoring
+
+* adjust workflows ([34a4f44](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/34a4f445ac3b5c41ee7d36ebd3936cb621d1d384))
+* try adjust code 5 ([241257a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/241257a20b7926268957794357eb5ebdbb19958b))
+
+## [2.9.1](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.9.0...v2.9.1) (2025-02-08)
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([e090b02](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/e090b02f439c7f46f06092164f08cf020f463e35))
+
+
+### ⌨️ Code Refactoring
+
+* adjust workflows ([21d3cd0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/21d3cd0311bf65ca608d8d290b91c14d52720823))
+
+## [2.9.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.8.0...v2.9.0) (2025-02-08)
+
+
+### 🚀 New Features
+
+* **chart:** patch update of dependencies on argocd chart ([03af068](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/03af0686ecc0701db34b6082c258fac9f9f07f55))
+
+
+### 📚 Documentation
+
+* **terraform-docs:** generate docs and write to README.adoc ([74cd96b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/74cd96b2ed31099eab1611a14ed06e64706927dc))
+* **terraform-docs:** generate docs and write to README.adoc ([db7645a](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/db7645adfc36f80f4f5f16c6778c9a2f9d2b045b))
+
+
+### ⌨️ Code Refactoring
+
+* adjust schedule cron chart-update workflow ([cb5f8f2](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/cb5f8f27ea32efcfb2f10a78fbf34c7d5bb964cd))
+
 ## [2.8.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.7.0...v2.8.0) (2025-02-07)
 
 
