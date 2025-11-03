@@ -31,10 +31,22 @@ variable "argocd_labels" {
   default     = {}
 }
 
+variable "destination_cluster" {
+  description = "Destination cluster where the application should be deployed."
+  type        = string
+  default     = "in-cluster"
+}
+
 variable "target_revision" {
   description = "Override of target revision of the application chart."
   type        = string
   default     = "v3.0.0" # x-release-please-version
+}
+
+variable "enable_service_monitor" {
+  description = "Boolean to enable the deployment of a service monitor for Prometheus. This also enables the deployment of default Prometheus rules and Grafana dashboards, which are embedded inside the chart templates and are taken from the official Thanos examples, available https://github.com/thanos-io/thanos/blob/main/examples/alerts/alerts.yaml[here]."
+  type        = bool
+  default     = false
 }
 
 variable "cluster_issuer" {
@@ -90,8 +102,8 @@ variable "resources" {
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
       }), {})
     }), {})
 
@@ -101,8 +113,8 @@ variable "resources" {
         memory = optional(string, "512Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "1")
+        memory = optional(string, "2Gi")
       }), {})
     }), {})
 
@@ -112,8 +124,8 @@ variable "resources" {
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "200m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -123,8 +135,8 @@ variable "resources" {
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "400m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -156,8 +168,8 @@ variable "resources" {
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -167,8 +179,8 @@ variable "resources" {
         memory = optional(string, "256Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "300m")
+        memory = optional(string, "512Mi")
       }), {})
     }), {})
 
@@ -197,26 +209,26 @@ variable "high_availability" {
     }), {})
 
     application_set = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
     }), {})
 
     server = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
       autoscaling = optional(object({
         enabled      = bool
-        min_replicas = optional(number, 2)
-        max_replicas = optional(number, 5)
+        min_replicas = optional(number, 1)
+        max_replicas = optional(number, 2)
         }), {
         enabled = false
       })
     }), {})
 
     repo_server = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
       autoscaling = optional(object({
         enabled      = bool
-        min_replicas = optional(number, 2)
-        max_replicas = optional(number, 5)
+        min_replicas = optional(number, 1)
+        max_replicas = optional(number, 2)
         }), {
         enabled = false
       })
@@ -242,6 +254,8 @@ variable "rbac" {
     scopes         = optional(string, "[groups, cognito:groups, roles]")
     policy_default = optional(string, "")
     policy_csv = optional(string, <<-EOT
+                                    p, role:admin, *, *, *, allow
+                                    g, admin, role:admin
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
                                     g, modern-gitops-stack-admins, role:admin
@@ -260,9 +274,9 @@ variable "repositories" {
 variable "ssh_known_hosts" {
   description = <<-EOT
     List of SSH known hosts to add to Argo CD.
-
-    Check the official `values.yaml` to get the format to pass this value.
-
+    
+    Check the official `values.yaml` to get the format to pass this value. 
+    
     IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
   EOT
   type        = string
@@ -336,4 +350,20 @@ variable "helmfile_cmp_env_variables" {
     }))
   }))
   default = []
+}
+
+#######################
+## Extras variables
+#######################
+
+variable "argocd_namespace" {
+  description = "Namespace used by Argo CD where the Application and AppProject resources should be created."
+  type        = string
+  default     = "argocd"
+}
+
+variable "namespace" {
+  description = "Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist."
+  type        = string
+  default     = "argocd"
 }

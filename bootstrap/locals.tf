@@ -116,12 +116,17 @@ locals {
         }
         rbac = {
           scopes           = "[groups, cognito:groups, roles]"
-          "policy.default" = ""
+          "policy.default" = "role:readonly" # evita 'deny all' para quem não tem binding
           "policy.csv"     = <<-EOT
-                              g, pipeline, role:admin
-                              g, argocd-admin, role:admin
-                              g, modern-gitops-stack-admins, role:admin
-                              EOT
+            # role admin com curinga explícito
+            p, role:admin, *, *, *, allow
+
+            # sujeitos/grupos -> roles
+            g, admin, role:admin
+            g, pipeline, role:admin
+            g, argocd-admin, role:admin
+            g, modern-gitops-stack-admins, role:admin
+          EOT
         }
         secret = {
           extra = {

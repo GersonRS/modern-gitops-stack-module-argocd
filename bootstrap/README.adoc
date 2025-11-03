@@ -15,6 +15,20 @@ module "argocd_bootstrap" {
 
   # Note here that you should mark the module as depending on the module that deployed the cluster
   depends_on = [module.eks]
+  
+  # Optional: Configure repositories to be added to Argo CD
+  ssh_private_key = var.ssh_private_key
+  repositories = [
+    "git@github.com:example/infrastructure.git",
+    "git@github.com:example/applications.git"
+  ]
+  
+  # Optional: Configure AppProjects
+  argocd_projects = {
+    "default" = {
+      destination_cluster = "in-cluster"
+    }
+  }
 }
 ----
 
