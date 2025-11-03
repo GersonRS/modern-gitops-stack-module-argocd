@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.0.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v3.0.0...v4.0.0) (2025-11-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **chart:** major update of dependencies on argocd chart
+
+### 🚀 New Features
+
+* **chart:** major update of dependencies on argocd chart ([4dba35e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/4dba35eddecebe13d977c0a6e27a7a1b3682be25))
+* **chart:** minor update of dependencies on argocd chart ([21e0532](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/21e053234e0cfb21bd39e2fafb6255692d5dcf80))
+* **chart:** minor update of dependencies on argocd chart ([33e12f7](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/33e12f7d6cd6f68b31b7a6f076ba783e67bff8fc))
+
 ## [3.0.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.10.0...v3.0.0) (2025-10-18)
 
 
