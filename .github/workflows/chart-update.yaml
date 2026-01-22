@@ -30,6 +30,10 @@ on:
 env:
   author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
 
+permissions:
+  contents: write
+  pull-requests: write
+
 # The duplication of code between the two steps is not ideal, but we did not find a way to reuse the centralized
 # workflow or by using a strategy matrix to workaround the problem.
 jobs:
@@ -64,7 +68,7 @@ jobs:
       - name: "Create Pull Request for a minor/patch update"
         if: ${{ steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type != 'major' }}
         id: minor-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         env:
           pr-title: "feat(chart): ${{ steps.deps-update.outputs.update-type }} update of dependencies on argocd chart"
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
@@ -77,7 +81,7 @@ jobs:
           reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          author: ${{ env.author }}
+          # author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
           title: ${{ env.pr-title }}
@@ -95,7 +99,7 @@ jobs:
       - name: "Create Pull Request for a major update"
         if: ${{ steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type == 'major' }}
         id: major-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         env:
           # This step does not have a branch and labels environment variable, because it is forcefully a major update,
           # unlike the previous step, which can either be a patch, minor or major update.
@@ -108,7 +112,7 @@ jobs:
           reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          author: ${{ env.author }}
+          # author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-major-argocd"
           title: ${{ env.pr-title }}
@@ -152,7 +156,7 @@ jobs:
       - name: "Create Pull Request for a minor/patch update"
         if: ${{ !inputs.dry-run && steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type != 'major' }}
         id: minor-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         env:
           pr-title: "feat(chart): ${{ steps.deps-update.outputs.update-type }} update of dependencies on argocd chart"
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
@@ -165,7 +169,7 @@ jobs:
           reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          author: ${{ env.author }}
+          # author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
           title: ${{ env.pr-title }}
@@ -183,7 +187,7 @@ jobs:
       - name: "Create Pull Request for a major update"
         if: ${{ !inputs.dry-run && steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type == 'major' }}
         id: major-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         env:
           # This step does not have a branch and labels environment variable, because it is forcefully a major update,
           # unlike the previous step, which can either be a patch, minor or major update.
@@ -196,7 +200,7 @@ jobs:
           reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          author: ${{ env.author }}
+          # author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-major-argocd"
           title: ${{ env.pr-title }}
