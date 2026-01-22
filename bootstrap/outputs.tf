@@ -4,7 +4,7 @@ output "id" {
 }
 
 output "argocd_namespace" {
-  description = "The namespace where Argo CD resides. The main use of this output is to create an implicit dependency when passing this attribute to the oboukili/argocd provider settings."
+  description = "The namespace where Argo CD resides. The main use of this output is to create an implicit dependency when passing this attribute to the argoproj-labs/argocd provider settings."
   value       = helm_release.argocd.metadata.namespace
 }
 
@@ -29,9 +29,4 @@ output "argocd_accounts_pipeline_tokens" {
   description = "The Argo CD accounts pipeline tokens."
   value       = local.argocd_accounts_pipeline_tokens
   sensitive   = true
-}
-
-output "configured_repositories" {
-  description = "List of repository URLs that were configured in Argo CD."
-  value       = var.repositories
 }

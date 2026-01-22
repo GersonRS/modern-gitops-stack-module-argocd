@@ -31,7 +31,7 @@ variable "ssh_private_key" {
   description = "SSH private key for accessing private Git repositories."
   type        = string
   sensitive   = true
-  default     = null
+  nullable    = false
 }
 
 variable "repositories" {
