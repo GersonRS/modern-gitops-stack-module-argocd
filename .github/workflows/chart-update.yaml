@@ -78,10 +78,10 @@ jobs:
           base: ${{ github.head_ref }}
           signoff: true
           assignees: GersonRS
-          reviewers: GersonRS
+          # reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          # author: ${{ env.author }}
+          author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
           title: ${{ env.pr-title }}
@@ -109,10 +109,10 @@ jobs:
           base: ${{ github.head_ref }}
           signoff: true
           assignees: GersonRS
-          reviewers: GersonRS
+          # reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          # author: ${{ env.author }}
+          author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-major-argocd"
           title: ${{ env.pr-title }}
@@ -166,10 +166,10 @@ jobs:
           base: ${{ github.head_ref }}
           signoff: true
           assignees: GersonRS
-          reviewers: GersonRS
+          # reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          # author: ${{ env.author }}
+          author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
           title: ${{ env.pr-title }}
@@ -197,10 +197,10 @@ jobs:
           base: ${{ github.head_ref }}
           signoff: true
           assignees: GersonRS
-          reviewers: GersonRS
+          # reviewers: GersonRS
           delete-branch: true
           commit-message: ${{ env.pr-title }}
-          # author: ${{ env.author }}
+          author: ${{ env.author }}
           committer: ${{ env.author }}
           branch: "chart-autoupdate-major-argocd"
           title: ${{ env.pr-title }}
