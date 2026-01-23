@@ -63,6 +63,18 @@ resource "argocd_project" "modern_gitops_stack_applications" {
   }
 }
 
+resource "argocd_repository" "private" {
+  for_each        = length(var.repositories) > 0 ? toset(var.repositories) : toset([])
+  name            = replace(regex(".*/(.*-(module|application)-.*)$", replace(each.value, ".git", ""))[0], "modern-gitops-stack-", "")
+  repo            = each.value
+  ssh_private_key = var.ssh_private_key
+  project         = length(var.argocd_projects) > 0 ? keys(var.argocd_projects)[0] : "default"
+  insecure        = true
+  depends_on = [
+    resource.argocd_project.modern_gitops_stack_applications,
+  ]
+}
+
 data "utils_deep_merge_yaml" "values" {
   input       = [for i in concat([local.helm_values.0.argo-cd], [var.helm_values.0.argo-cd]) : yamlencode(i)]
   append_list = true
@@ -73,5 +85,6 @@ resource "null_resource" "this" {
     resource.helm_release.argocd,
     resource.random_password.argocd_server_secretkey,
     resource.argocd_project.modern_gitops_stack_applications,
+    resource.argocd_repository.private,
   ]
 }

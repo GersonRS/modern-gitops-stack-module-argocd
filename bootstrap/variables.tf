@@ -26,3 +26,25 @@ variable "helm_values" {
     argo-cd = {}
   }]
 }
+
+variable "ssh_private_key" {
+  description = "SSH private key for accessing private Git repositories."
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
+
+variable "repositories" {
+  description = <<-EOT
+    List of Git repository URLs to be added to Argo CD. These repositories will be configured 
+    with SSH authentication using the provided private key. Each repository will be associated 
+    with the 'in-cluster' project.
+  EOT
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = length(var.repositories) == 0 || var.ssh_private_key != null
+    error_message = "ssh_private_key must be provided when repositories are specified."
+  }
+}
