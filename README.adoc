@@ -304,13 +304,29 @@ Type: `map(string)`
 
 Default: `{}`
 
+==== [[input_destination_cluster]] <<input_destination_cluster,destination_cluster>>
+
+Description: Destination cluster where the application should be deployed.
+
+Type: `string`
+
+Default: `"in-cluster"`
+
 ==== [[input_target_revision]] <<input_target_revision,target_revision>>
 
 Description: Override of target revision of the application chart.
 
 Type: `string`
 
-Default: `"v3.0.0"`
+Default: `"v4.0.0"`
+
+==== [[input_enable_service_monitor]] <<input_enable_service_monitor,enable_service_monitor>>
+
+Description: Boolean to enable the deployment of a service monitor for Prometheus. This also enables the deployment of default Prometheus rules and Grafana dashboards, which are embedded inside the chart templates and are taken from the official Thanos examples, available https://github.com/thanos-io/thanos/blob/main/examples/alerts/alerts.yaml[here].
+
+Type: `bool`
+
+Default: `false`
 
 ==== [[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
 
@@ -381,8 +397,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
       }), {})
     }), {})
 
@@ -392,8 +408,8 @@ object({
         memory = optional(string, "512Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "1")
+        memory = optional(string, "2Gi")
       }), {})
     }), {})
 
@@ -403,8 +419,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "200m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -414,8 +430,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "400m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -447,8 +463,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -458,8 +474,8 @@ object({
         memory = optional(string, "256Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "300m")
+        memory = optional(string, "512Mi")
       }), {})
     }), {})
 
@@ -491,26 +507,26 @@ object({
     }), {})
 
     application_set = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
     }), {})
 
     server = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
       autoscaling = optional(object({
         enabled      = bool
-        min_replicas = optional(number, 2)
-        max_replicas = optional(number, 5)
+        min_replicas = optional(number, 1)
+        max_replicas = optional(number, 2)
         }), {
         enabled = false
       })
     }), {})
 
     repo_server = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
       autoscaling = optional(object({
         enabled      = bool
-        min_replicas = optional(number, 2)
-        max_replicas = optional(number, 5)
+        min_replicas = optional(number, 1)
+        max_replicas = optional(number, 2)
         }), {
         enabled = false
       })
@@ -546,6 +562,8 @@ object({
     scopes         = optional(string, "[groups, cognito:groups, roles]")
     policy_default = optional(string, "")
     policy_csv = optional(string, <<-EOT
+                                    p, role:admin, *, *, *, allow
+                                    g, admin, role:admin
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
                                     g, modern-gitops-stack-admins, role:admin
@@ -566,9 +584,9 @@ Default: `{}`
 
 ==== [[input_ssh_known_hosts]] <<input_ssh_known_hosts,ssh_known_hosts>>
 
-Description: List of SSH known hosts to add to Argo CD.
+Description: List of SSH known hosts to add to Argo CD.  
 
-Check the official `values.yaml` to get the format to pass this value.
+Check the official `values.yaml` to get the format to pass this value.   
 
 IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
 
@@ -653,6 +671,22 @@ list(object({
 
 Default: `[]`
 
+==== [[input_argocd_namespace]] <<input_argocd_namespace,argocd_namespace>>
+
+Description: Namespace used by Argo CD where the Application and AppProject resources should be created.
+
+Type: `string`
+
+Default: `"argocd"`
+
+==== [[input_namespace]] <<input_namespace,namespace>>
+
+Description: Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist.
+
+Type: `string`
+
+Default: `"argocd"`
+
 === Outputs
 
 The following outputs are exported:
@@ -692,12 +726,12 @@ Description: Map of extra accounts that were created and their tokens.
 [cols="a,a",options="header,autowidth"]
 |===
 |Name |Version
-|[[provider_null]] <<provider_null,null>> |>= 3
 |[[provider_jwt]] <<provider_jwt,jwt>> |>= 1.1
 |[[provider_time]] <<provider_time,time>> |>= 0.9
 |[[provider_random]] <<provider_random,random>> |>= 3
 |[[provider_argocd]] <<provider_argocd,argocd>> |>= 6
 |[[provider_utils]] <<provider_utils,utils>> |>= 1.6
+|[[provider_null]] <<provider_null,null>> |>= 3
 |===
 
 = Resources
@@ -750,10 +784,22 @@ Description: Map of extra accounts that were created and their tokens.
 |`{}`
 |no
 
+|[[input_destination_cluster]] <<input_destination_cluster,destination_cluster>>
+|Destination cluster where the application should be deployed.
+|`string`
+|`"in-cluster"`
+|no
+
 |[[input_target_revision]] <<input_target_revision,target_revision>>
 |Override of target revision of the application chart.
 |`string`
-|`"v3.0.0"`
+|`"v4.0.0"`
+|no
+
+|[[input_enable_service_monitor]] <<input_enable_service_monitor,enable_service_monitor>>
+|Boolean to enable the deployment of a service monitor for Prometheus. This also enables the deployment of default Prometheus rules and Grafana dashboards, which are embedded inside the chart templates and are taken from the official Thanos examples, available https://github.com/thanos-io/thanos/blob/main/examples/alerts/alerts.yaml[here].
+|`bool`
+|`false`
 |no
 
 |[[input_cluster_issuer]] <<input_cluster_issuer,cluster_issuer>>
@@ -821,8 +867,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
       }), {})
     }), {})
 
@@ -832,8 +878,8 @@ object({
         memory = optional(string, "512Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "1")
+        memory = optional(string, "2Gi")
       }), {})
     }), {})
 
@@ -843,8 +889,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "200m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -854,8 +900,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "400m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -887,8 +933,8 @@ object({
         memory = optional(string, "128Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
       }), {})
     }), {})
 
@@ -898,8 +944,8 @@ object({
         memory = optional(string, "256Mi")
       }), {})
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "300m")
+        memory = optional(string, "512Mi")
       }), {})
     }), {})
 
@@ -932,26 +978,26 @@ object({
     }), {})
 
     application_set = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
     }), {})
 
     server = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
       autoscaling = optional(object({
         enabled      = bool
-        min_replicas = optional(number, 2)
-        max_replicas = optional(number, 5)
+        min_replicas = optional(number, 1)
+        max_replicas = optional(number, 2)
         }), {
         enabled = false
       })
     }), {})
 
     repo_server = optional(object({
-      replicas = optional(number, 2)
+      replicas = optional(number, 1)
       autoscaling = optional(object({
         enabled      = bool
-        min_replicas = optional(number, 2)
-        max_replicas = optional(number, 5)
+        min_replicas = optional(number, 1)
+        max_replicas = optional(number, 2)
         }), {
         enabled = false
       })
@@ -987,6 +1033,8 @@ object({
     scopes         = optional(string, "[groups, cognito:groups, roles]")
     policy_default = optional(string, "")
     policy_csv = optional(string, <<-EOT
+                                    p, role:admin, *, *, *, allow
+                                    g, admin, role:admin
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
                                     g, modern-gitops-stack-admins, role:admin
@@ -1006,9 +1054,9 @@ object({
 
 |[[input_ssh_known_hosts]] <<input_ssh_known_hosts,ssh_known_hosts>>
 |List of SSH known hosts to add to Argo CD.
-
+    
 Check the official `values.yaml` to get the format to pass this value.
-
+    
 IMPORTANT: If you set this variable, the default known hosts will be overridden by this value, so you might want to consider adding the ones you need here."
 
 |`string`
@@ -1088,6 +1136,18 @@ list(object({
 ----
 
 |`[]`
+|no
+
+|[[input_argocd_namespace]] <<input_argocd_namespace,argocd_namespace>>
+|Namespace used by Argo CD where the Application and AppProject resources should be created.
+|`string`
+|`"argocd"`
+|no
+
+|[[input_namespace]] <<input_namespace,namespace>>
+|Namespace where the applications's Kubernetes resources should be created. Namespace will be created in case it doesn't exist.
+|`string`
+|`"argocd"`
 |no
 
 |===

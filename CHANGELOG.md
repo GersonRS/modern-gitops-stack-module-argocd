@@ -1,5 +1,36 @@
 # Changelog
 
+## [4.0.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v3.0.0...v4.0.0) (2026-01-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **chart:** major update of dependencies on argocd chart
+
+### 🚀 New Features
+
+* adjust chart update ([b07cbbb](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/b07cbbb3a0384f753c42417ed5a1a07d511a5ddb))
+* adjust code ([612e7df](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/612e7df45cf6adba9befee3116c7dcc0c04e536d))
+* adjust other workflows ([8f01b0b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/8f01b0bd8ba469a2ead4e5188e06691217e60ddd))
+* **chart:** major update of dependencies on argocd chart ([4dba35e](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/4dba35eddecebe13d977c0a6e27a7a1b3682be25))
+* **chart:** minor update of dependencies on argocd chart ([947fbd6](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/947fbd68e7368f5bd2cd9b6579bdd27c0f01aa1b))
+* **chart:** minor update of dependencies on argocd chart ([f0f1ccb](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f0f1ccbcd1d597c08b3f90a4b93980c7806d43cd))
+* **chart:** minor update of dependencies on argocd chart ([7fe0a44](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/7fe0a4452171d0897605710015457164aa22c357))
+* **chart:** minor update of dependencies on argocd chart ([07b6b14](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/07b6b145c2977c0631e2a164c53aad7ed40d7567))
+* **chart:** minor update of dependencies on argocd chart ([21e0532](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/21e053234e0cfb21bd39e2fafb6255692d5dcf80))
+* **chart:** minor update of dependencies on argocd chart ([33e12f7](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/33e12f7d6cd6f68b31b7a6f076ba783e67bff8fc))
+* new chart update ([9b8af4b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/9b8af4b0bd6500b2803d14e811f8c3ea5fc96afe))
+* update argocd ([f85e315](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/f85e3150229353f6b0981b4b0de3120607f82a40))
+* update project ([ddd4913](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/ddd4913be0a2f7a09d3704574a3cc7bce9785cd5))
+
+
+### 🛠️ Build System
+
+* **deps:** bump actions/checkout from 5 to 6 ([7651bb0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/7651bb0c8532241b791283022ba0bf9800a18d6b))
+* **deps:** bump actions/checkout from 5 to 6 ([001f02b](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/001f02b1a763c27b86acebece5c37a96e027667d))
+* **deps:** bump peter-evans/create-pull-request from 7 to 8 ([170518f](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/170518fb93086cd25b3a6756f280406828b66a04))
+* **deps:** bump peter-evans/create-pull-request from 7 to 8 ([b656a99](https://github.com/GersonRS/modern-gitops-stack-module-argocd/commit/b656a996127d30078030146dc941232cb63af3b7))
+
 ## [3.0.0](https://github.com/GersonRS/modern-gitops-stack-module-argocd/compare/v2.10.0...v3.0.0) (2025-10-18)
 
 
