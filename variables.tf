@@ -151,17 +151,6 @@ variable "resources" {
       }), {})
     }), {})
 
-    helmfile_cmp = optional(object({
-      requests = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "128Mi")
-      }), {})
-      limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
-      }), {})
-    }), {})
-
     server = optional(object({
       requests = optional(object({
         cpu    = optional(string, "50m")
@@ -254,11 +243,54 @@ variable "rbac" {
     scopes         = optional(string, "[groups, cognito:groups, roles]")
     policy_default = optional(string, "")
     policy_csv = optional(string, <<-EOT
+                                    # Roles definition
                                     p, role:admin, *, *, *, allow
+                                    p, role:viewer, applications, get, *, allow
+                                    p, role:viewer, applications, list, *, allow
+                                    p, role:viewer, logs, get, *, allow
+                                    p, role:viewer, projects, get, *, allow
+                                    p, role:viewer, projects, list, *, allow
+                                    p, role:viewer, clusters, get, *, allow
+                                    p, role:viewer, repositories, get, *, allow
+                                    p, role:viewer, repositories, list, *, allow
+                                    p, role:editor, applications, *, *, allow
+                                    p, role:editor, logs, get, *, allow
+                                    p, role:editor, projects, get, *, allow
+                                    p, role:editor, projects, list, *, allow
+                                    p, role:editor, clusters, get, *, allow
+                                    p, role:editor, repositories, get, *, allow
+                                    p, role:editor, repositories, list, *, allow
+                                    p, role:data-engineer, applications, get, *, allow
+                                    p, role:data-engineer, applications, list, *, allow
+                                    p, role:data-engineer, applications, sync, *, allow
+                                    p, role:data-engineer, applications, action/*, *, allow
+                                    p, role:data-engineer, logs, get, *, allow
+                                    p, role:data-engineer, projects, get, *, allow
+                                    p, role:data-engineer, projects, list, *, allow
+                                    p, role:data-scientist, applications, get, *, allow
+                                    p, role:data-scientist, applications, list, *, allow
+                                    p, role:data-scientist, applications, sync, *, allow
+                                    p, role:data-scientist, logs, get, *, allow
+                                    p, role:data-scientist, projects, get, *, allow
+                                    p, role:data-scientist, projects, list, *, allow
+                                    p, role:ml-engineer, applications, get, *, allow
+                                    p, role:ml-engineer, applications, list, *, allow
+                                    p, role:ml-engineer, applications, sync, *, allow
+                                    p, role:ml-engineer, applications, action/*, *, allow
+                                    p, role:ml-engineer, logs, get, *, allow
+                                    p, role:ml-engineer, projects, get, *, allow
+                                    p, role:ml-engineer, projects, list, *, allow
+                                    p, role:ml-engineer, exec, create, *, allow
+                                    # Group to role mappings
                                     g, admin, role:admin
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
                                     g, modern-gitops-stack-admins, role:admin
+                                    g, modern-gitops-stack-viewers, role:viewer
+                                    g, modern-gitops-stack-editors, role:editor
+                                    g, modern-gitops-stack-data-engineers, role:data-engineer
+                                    g, modern-gitops-stack-data-scientists, role:data-scientist
+                                    g, modern-gitops-stack-ml-engineers, role:ml-engineer
                                   EOT
     )
   })
@@ -311,45 +343,6 @@ variable "extra_accounts" {
   description = "List of accounts for which tokens will be generated."
   type        = list(string)
   default     = []
-}
-
-variable "repo_server_iam_role_arn" {
-  description = "IAM role ARN to associate with the argocd-repo-server ServiceAccount. This role can be used to give SOPS access to AWS KMS."
-  type        = string
-  default     = null
-}
-
-variable "repo_server_azure_workload_identity_clientid" {
-  description = "Azure AD Workload Identity Client-ID to associate with argocd-repo-server. This role can be used to give SOPS access to a Key Vault."
-  type        = string
-  default     = null
-}
-
-variable "repo_server_aadpodidbinding" {
-  description = "Azure AAD Pod Identity to associate with the argocd-repo-server Pod. This role can be used to give SOPS access to a Key Vault."
-  type        = string
-  default     = null
-}
-
-variable "helmfile_cmp_version" {
-  description = "Version of the helmfile-cmp plugin."
-  type        = string
-  default     = "0.1.2"
-}
-
-variable "helmfile_cmp_env_variables" {
-  description = "List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret]."
-  type = list(object({
-    name  = optional(string)
-    value = optional(string)
-    valueFrom = optional(object({
-      secretKeyRef = optional(object({
-        name = optional(string)
-        key  = optional(string)
-      }))
-    }))
-  }))
-  default = []
 }
 
 #######################

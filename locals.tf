@@ -1,7 +1,7 @@
 
 locals {
-  argocd_version  = yamldecode(file("${path.root}/charts/argocd/chart-version.yaml")).appVersion
-  argocd_hostname = format("argocd.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  argocd_version  = yamldecode(file("${path.module}/chart-version.yaml")).appVersion
+  argocd_hostname = "argocd.${var.subdomain != "" ? "${trimprefix(var.subdomain, ".")}." : ""}${var.base_domain}"
 
   jwt_tokens = {
     for account in var.extra_accounts : account => {
@@ -81,39 +81,6 @@ locals {
         requests = { for k, v in var.resources.kustomized_helm_cmp.requests : k => v if v != null }
         limits   = { for k, v in var.resources.kustomized_helm_cmp.limits : k => v if v != null }
       }
-    },
-    {
-      name    = "helmfile-cmp"
-      command = ["/var/run/argocd/argocd-cmp-server"]
-      image   = "ghcr.io/camptocamp/docker-argocd-cmp-helmfile:${var.helmfile_cmp_version}"
-      args    = ["--loglevel=warn"]
-      env     = var.helmfile_cmp_env_variables
-      securityContext = {
-        runAsNonRoot = true
-        runAsUser    = 999
-      }
-      terminationMessagePath   = "/dev/termination-log"
-      terminationMessagePolicy = "File"
-      volumeMounts = [
-        {
-          mountPath = "/var/run/argocd"
-          name      = "var-files"
-        },
-        {
-          mountPath = "/home/argocd/cmp-server/plugins"
-          name      = "plugins"
-        },
-        {
-          mountPath = "/tmp"
-          name      = "helmfile-cmp-tmp"
-        }
-      ]
-      # The extra containers of the repo_server pod must have resource requests/limits in order to allow this component
-      # to autoscale properly.
-      resources = {
-        requests = { for k, v in var.resources.helmfile_cmp.requests : k => v if v != null }
-        limits   = { for k, v in var.resources.helmfile_cmp.limits : k => v if v != null }
-      }
     }
   ]
 
@@ -133,16 +100,6 @@ locals {
       emptyDir = {}
     }
   ]
-
-  repo_server_service_account_annotations = merge(
-    var.repo_server_iam_role_arn != null ? { "eks.amazonaws.com/role-arn" = var.repo_server_iam_role_arn } : {},
-    var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/client-id" = var.repo_server_azure_workload_identity_clientid } : {}
-  )
-
-  repo_server_pod_labels = merge(
-    var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/use" : "true" } : {},
-    var.repo_server_aadpodidbinding != null ? { "aadpodidbinding" : var.repo_server_aadpodidbinding } : {}
-  )
 
   helm_values = [{
     argo-cd = {
@@ -244,10 +201,8 @@ locals {
         }
         volumes         = local.repo_server_volumes
         extraContainers = local.repo_server_extra_containers
-        podLabels       = local.repo_server_pod_labels
-        serviceAccount = {
-          annotations = local.repo_server_service_account_annotations
-        }
+
+
       }
       extraObjects = local.extra_objects
       server = {
