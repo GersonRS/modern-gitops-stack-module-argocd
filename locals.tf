@@ -143,9 +143,6 @@ locals {
         params = {
           "server.insecure" = true # We terminate the SSL connection at the Traefik Ingress Controller
         }
-        ssh = {
-          knownHosts = var.ssh_known_hosts
-        }
         rbac = {
           scopes           = var.rbac.scopes
           "policy.default" = var.rbac.policy_default
@@ -158,7 +155,11 @@ locals {
             "oidc.default.clientSecret" = "${replace(var.oidc.clientSecret, "\\\"", "\"")}"
           }, local.extra_accounts_tokens)
         }
-      })
+        }, var.ssh_known_hosts != null ? {
+        ssh = {
+          knownHosts = var.ssh_known_hosts
+        }
+      } : null)
       applicationSet = {
         replicas = var.high_availability.enabled ? var.high_availability.application_set.replicas : null
         resources = {
@@ -183,12 +184,12 @@ locals {
         enabled = false
       }
       repoServer = {
-        replicas = var.high_availability.enabled && !var.high_availability.repo_server.autoscaling.enabled ? var.high_availability.server.replicas : null
-        autoscaling = var.high_availability.repo_server.autoscaling.enabled ? {
-          enabled     = true
+        replicas = var.high_availability.enabled && !var.high_availability.repo_server.autoscaling.enabled ? var.high_availability.repo_server.replicas : null
+        autoscaling = {
+          enabled     = var.high_availability.repo_server.autoscaling.enabled
           minReplicas = var.high_availability.repo_server.autoscaling.min_replicas
           maxReplicas = var.high_availability.repo_server.autoscaling.max_replicas
-        } : null
+        }
         resources = {
           requests = { for k, v in var.resources.repo_server.requests : k => v if v != null }
           limits   = { for k, v in var.resources.repo_server.limits : k => v if v != null }
@@ -207,11 +208,11 @@ locals {
       extraObjects = local.extra_objects
       server = {
         replicas = var.high_availability.enabled && !var.high_availability.server.autoscaling.enabled ? var.high_availability.server.replicas : null
-        autoscaling = var.high_availability.server.autoscaling.enabled ? {
-          enabled     = true
+        autoscaling = {
+          enabled     = var.high_availability.server.autoscaling.enabled
           minReplicas = var.high_availability.server.autoscaling.min_replicas
           maxReplicas = var.high_availability.server.autoscaling.max_replicas
-        } : null
+        }
         resources = {
           requests = { for k, v in var.resources.server.requests : k => v if v != null }
           limits   = { for k, v in var.resources.server.limits : k => v if v != null }
@@ -253,17 +254,8 @@ locals {
           limits   = { for k, v in var.resources.redis.limits : k => v if v != null }
         }
       } : null
-      redis-ha = var.high_availability.enabled ? {
-        enabled = true
-        redis = {
-          resources = {
-            requests = { for k, v in var.resources.redis.requests : k => v if v != null }
-            limits   = { for k, v in var.resources.redis.limits : k => v if v != null }
-          }
-        }
-        } : {
-        enabled = false
-        redis   = null
+      redis-ha = {
+        enabled = var.high_availability.enabled
       }
     }
   }]
