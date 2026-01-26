@@ -223,17 +223,17 @@ The following requirements are needed by this module:
 
 The following providers are used by this module:
 
-- [[provider_jwt]] <<provider_jwt,jwt>> (>= 1.1)
+- [[provider_jwt]] <<provider_jwt,jwt>> (1.1.2)
 
-- [[provider_time]] <<provider_time,time>> (>= 0.9)
+- [[provider_time]] <<provider_time,time>> (0.13.1)
 
-- [[provider_random]] <<provider_random,random>> (>= 3)
+- [[provider_random]] <<provider_random,random>> (3.8.0)
 
-- [[provider_argocd]] <<provider_argocd,argocd>> (>= 6)
+- [[provider_utils]] <<provider_utils,utils>> (1.31.0)
 
-- [[provider_utils]] <<provider_utils,utils>> (>= 1.6)
+- [[provider_argocd]] <<provider_argocd,argocd>> (7.12.5)
 
-- [[provider_null]] <<provider_null,null>> (>= 3)
+- [[provider_null]] <<provider_null,null>> (3.2.4)
 
 === Resources
 
@@ -318,7 +318,7 @@ Description: Override of target revision of the application chart.
 
 Type: `string`
 
-Default: `"v4.0.0"`
+Default: `"v4.1.0"`
 
 ==== [[input_enable_service_monitor]] <<input_enable_service_monitor,enable_service_monitor>>
 
@@ -446,17 +446,6 @@ object({
       }), {})
     }), {})
 
-    helmfile_cmp = optional(object({
-      requests = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "128Mi")
-      }), {})
-      limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
-      }), {})
-    }), {})
-
     server = optional(object({
       requests = optional(object({
         cpu    = optional(string, "50m")
@@ -562,11 +551,54 @@ object({
     scopes         = optional(string, "[groups, cognito:groups, roles]")
     policy_default = optional(string, "")
     policy_csv = optional(string, <<-EOT
+                                    # Roles definition
                                     p, role:admin, *, *, *, allow
+                                    p, role:viewer, applications, get, *, allow
+                                    p, role:viewer, applications, list, *, allow
+                                    p, role:viewer, logs, get, *, allow
+                                    p, role:viewer, projects, get, *, allow
+                                    p, role:viewer, projects, list, *, allow
+                                    p, role:viewer, clusters, get, *, allow
+                                    p, role:viewer, repositories, get, *, allow
+                                    p, role:viewer, repositories, list, *, allow
+                                    p, role:editor, applications, *, *, allow
+                                    p, role:editor, logs, get, *, allow
+                                    p, role:editor, projects, get, *, allow
+                                    p, role:editor, projects, list, *, allow
+                                    p, role:editor, clusters, get, *, allow
+                                    p, role:editor, repositories, get, *, allow
+                                    p, role:editor, repositories, list, *, allow
+                                    p, role:data-engineer, applications, get, *, allow
+                                    p, role:data-engineer, applications, list, *, allow
+                                    p, role:data-engineer, applications, sync, *, allow
+                                    p, role:data-engineer, applications, action/*, *, allow
+                                    p, role:data-engineer, logs, get, *, allow
+                                    p, role:data-engineer, projects, get, *, allow
+                                    p, role:data-engineer, projects, list, *, allow
+                                    p, role:data-scientist, applications, get, *, allow
+                                    p, role:data-scientist, applications, list, *, allow
+                                    p, role:data-scientist, applications, sync, *, allow
+                                    p, role:data-scientist, logs, get, *, allow
+                                    p, role:data-scientist, projects, get, *, allow
+                                    p, role:data-scientist, projects, list, *, allow
+                                    p, role:ml-engineer, applications, get, *, allow
+                                    p, role:ml-engineer, applications, list, *, allow
+                                    p, role:ml-engineer, applications, sync, *, allow
+                                    p, role:ml-engineer, applications, action/*, *, allow
+                                    p, role:ml-engineer, logs, get, *, allow
+                                    p, role:ml-engineer, projects, get, *, allow
+                                    p, role:ml-engineer, projects, list, *, allow
+                                    p, role:ml-engineer, exec, create, *, allow
+                                    # Group to role mappings
                                     g, admin, role:admin
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
                                     g, modern-gitops-stack-admins, role:admin
+                                    g, modern-gitops-stack-viewers, role:viewer
+                                    g, modern-gitops-stack-editors, role:editor
+                                    g, modern-gitops-stack-data-engineers, role:data-engineer
+                                    g, modern-gitops-stack-data-scientists, role:data-scientist
+                                    g, modern-gitops-stack-ml-engineers, role:ml-engineer
                                   EOT
     )
   })
@@ -615,59 +647,6 @@ Default: `false`
 Description: List of accounts for which tokens will be generated.
 
 Type: `list(string)`
-
-Default: `[]`
-
-==== [[input_repo_server_iam_role_arn]] <<input_repo_server_iam_role_arn,repo_server_iam_role_arn>>
-
-Description: IAM role ARN to associate with the argocd-repo-server ServiceAccount. This role can be used to give SOPS access to AWS KMS.
-
-Type: `string`
-
-Default: `null`
-
-==== [[input_repo_server_azure_workload_identity_clientid]] <<input_repo_server_azure_workload_identity_clientid,repo_server_azure_workload_identity_clientid>>
-
-Description: Azure AD Workload Identity Client-ID to associate with argocd-repo-server. This role can be used to give SOPS access to a Key Vault.
-
-Type: `string`
-
-Default: `null`
-
-==== [[input_repo_server_aadpodidbinding]] <<input_repo_server_aadpodidbinding,repo_server_aadpodidbinding>>
-
-Description: Azure AAD Pod Identity to associate with the argocd-repo-server Pod. This role can be used to give SOPS access to a Key Vault.
-
-Type: `string`
-
-Default: `null`
-
-==== [[input_helmfile_cmp_version]] <<input_helmfile_cmp_version,helmfile_cmp_version>>
-
-Description: Version of the helmfile-cmp plugin.
-
-Type: `string`
-
-Default: `"0.1.2"`
-
-==== [[input_helmfile_cmp_env_variables]] <<input_helmfile_cmp_env_variables,helmfile_cmp_env_variables>>
-
-Description: List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret].
-
-Type:
-[source,hcl]
-----
-list(object({
-    name  = optional(string)
-    value = optional(string)
-    valueFrom = optional(object({
-      secretKeyRef = optional(object({
-        name = optional(string)
-        key  = optional(string)
-      }))
-    }))
-  }))
-----
 
 Default: `[]`
 
@@ -726,12 +705,12 @@ Description: Map of extra accounts that were created and their tokens.
 [cols="a,a",options="header,autowidth"]
 |===
 |Name |Version
-|[[provider_jwt]] <<provider_jwt,jwt>> |>= 1.1
-|[[provider_time]] <<provider_time,time>> |>= 0.9
-|[[provider_random]] <<provider_random,random>> |>= 3
-|[[provider_argocd]] <<provider_argocd,argocd>> |>= 6
-|[[provider_utils]] <<provider_utils,utils>> |>= 1.6
-|[[provider_null]] <<provider_null,null>> |>= 3
+|[[provider_jwt]] <<provider_jwt,jwt>> |1.1.2
+|[[provider_time]] <<provider_time,time>> |0.13.1
+|[[provider_random]] <<provider_random,random>> |3.8.0
+|[[provider_argocd]] <<provider_argocd,argocd>> |7.12.5
+|[[provider_utils]] <<provider_utils,utils>> |1.31.0
+|[[provider_null]] <<provider_null,null>> |3.2.4
 |===
 
 = Resources
@@ -793,7 +772,7 @@ Description: Map of extra accounts that were created and their tokens.
 |[[input_target_revision]] <<input_target_revision,target_revision>>
 |Override of target revision of the application chart.
 |`string`
-|`"v4.0.0"`
+|`"v4.1.0"`
 |no
 
 |[[input_enable_service_monitor]] <<input_enable_service_monitor,enable_service_monitor>>
@@ -916,17 +895,6 @@ object({
       }), {})
     }), {})
 
-    helmfile_cmp = optional(object({
-      requests = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "128Mi")
-      }), {})
-      limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
-      }), {})
-    }), {})
-
     server = optional(object({
       requests = optional(object({
         cpu    = optional(string, "50m")
@@ -1033,11 +1001,54 @@ object({
     scopes         = optional(string, "[groups, cognito:groups, roles]")
     policy_default = optional(string, "")
     policy_csv = optional(string, <<-EOT
+                                    # Roles definition
                                     p, role:admin, *, *, *, allow
+                                    p, role:viewer, applications, get, *, allow
+                                    p, role:viewer, applications, list, *, allow
+                                    p, role:viewer, logs, get, *, allow
+                                    p, role:viewer, projects, get, *, allow
+                                    p, role:viewer, projects, list, *, allow
+                                    p, role:viewer, clusters, get, *, allow
+                                    p, role:viewer, repositories, get, *, allow
+                                    p, role:viewer, repositories, list, *, allow
+                                    p, role:editor, applications, *, *, allow
+                                    p, role:editor, logs, get, *, allow
+                                    p, role:editor, projects, get, *, allow
+                                    p, role:editor, projects, list, *, allow
+                                    p, role:editor, clusters, get, *, allow
+                                    p, role:editor, repositories, get, *, allow
+                                    p, role:editor, repositories, list, *, allow
+                                    p, role:data-engineer, applications, get, *, allow
+                                    p, role:data-engineer, applications, list, *, allow
+                                    p, role:data-engineer, applications, sync, *, allow
+                                    p, role:data-engineer, applications, action/*, *, allow
+                                    p, role:data-engineer, logs, get, *, allow
+                                    p, role:data-engineer, projects, get, *, allow
+                                    p, role:data-engineer, projects, list, *, allow
+                                    p, role:data-scientist, applications, get, *, allow
+                                    p, role:data-scientist, applications, list, *, allow
+                                    p, role:data-scientist, applications, sync, *, allow
+                                    p, role:data-scientist, logs, get, *, allow
+                                    p, role:data-scientist, projects, get, *, allow
+                                    p, role:data-scientist, projects, list, *, allow
+                                    p, role:ml-engineer, applications, get, *, allow
+                                    p, role:ml-engineer, applications, list, *, allow
+                                    p, role:ml-engineer, applications, sync, *, allow
+                                    p, role:ml-engineer, applications, action/*, *, allow
+                                    p, role:ml-engineer, logs, get, *, allow
+                                    p, role:ml-engineer, projects, get, *, allow
+                                    p, role:ml-engineer, projects, list, *, allow
+                                    p, role:ml-engineer, exec, create, *, allow
+                                    # Group to role mappings
                                     g, admin, role:admin
                                     g, pipeline, role:admin
                                     g, argocd-admin, role:admin
                                     g, modern-gitops-stack-admins, role:admin
+                                    g, modern-gitops-stack-viewers, role:viewer
+                                    g, modern-gitops-stack-editors, role:editor
+                                    g, modern-gitops-stack-data-engineers, role:data-engineer
+                                    g, modern-gitops-stack-data-scientists, role:data-scientist
+                                    g, modern-gitops-stack-ml-engineers, role:ml-engineer
                                   EOT
     )
   })
@@ -1090,51 +1101,6 @@ IMPORTANT: If you set this variable, the default known hosts will be overridden 
 |[[input_extra_accounts]] <<input_extra_accounts,extra_accounts>>
 |List of accounts for which tokens will be generated.
 |`list(string)`
-|`[]`
-|no
-
-|[[input_repo_server_iam_role_arn]] <<input_repo_server_iam_role_arn,repo_server_iam_role_arn>>
-|IAM role ARN to associate with the argocd-repo-server ServiceAccount. This role can be used to give SOPS access to AWS KMS.
-|`string`
-|`null`
-|no
-
-|[[input_repo_server_azure_workload_identity_clientid]] <<input_repo_server_azure_workload_identity_clientid,repo_server_azure_workload_identity_clientid>>
-|Azure AD Workload Identity Client-ID to associate with argocd-repo-server. This role can be used to give SOPS access to a Key Vault.
-|`string`
-|`null`
-|no
-
-|[[input_repo_server_aadpodidbinding]] <<input_repo_server_aadpodidbinding,repo_server_aadpodidbinding>>
-|Azure AAD Pod Identity to associate with the argocd-repo-server Pod. This role can be used to give SOPS access to a Key Vault.
-|`string`
-|`null`
-|no
-
-|[[input_helmfile_cmp_version]] <<input_helmfile_cmp_version,helmfile_cmp_version>>
-|Version of the helmfile-cmp plugin.
-|`string`
-|`"0.1.2"`
-|no
-
-|[[input_helmfile_cmp_env_variables]] <<input_helmfile_cmp_env_variables,helmfile_cmp_env_variables>>
-|List of environment variables to attach to the helmfile-cmp plugin, usually used to pass authentication credentials. Use an https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/[explicit format] or take the values from a https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data[Kubernetes secret].
-|
-
-[source]
-----
-list(object({
-    name  = optional(string)
-    value = optional(string)
-    valueFrom = optional(object({
-      secretKeyRef = optional(object({
-        name = optional(string)
-        key  = optional(string)
-      }))
-    }))
-  }))
-----
-
 |`[]`
 |no
 
