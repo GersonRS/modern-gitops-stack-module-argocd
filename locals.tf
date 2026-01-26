@@ -1,7 +1,7 @@
 
 locals {
-  argocd_version  = yamldecode(file("${path.root}/charts/argocd/chart-version.yaml")).appVersion
-  argocd_hostname = format("argocd.%s", trimprefix("${var.subdomain}.${var.base_domain}", "."))
+  argocd_version  = yamldecode(file("${path.module}/chart-version.yaml")).appVersion
+  argocd_hostname = "argocd.${var.subdomain != "" ? "${trimprefix(var.subdomain, ".")}." : ""}${var.base_domain}"
 
   jwt_tokens = {
     for account in var.extra_accounts : account => {
@@ -81,39 +81,6 @@ locals {
         requests = { for k, v in var.resources.kustomized_helm_cmp.requests : k => v if v != null }
         limits   = { for k, v in var.resources.kustomized_helm_cmp.limits : k => v if v != null }
       }
-    },
-    {
-      name    = "helmfile-cmp"
-      command = ["/var/run/argocd/argocd-cmp-server"]
-      image   = "ghcr.io/camptocamp/docker-argocd-cmp-helmfile:${var.helmfile_cmp_version}"
-      args    = ["--loglevel=warn"]
-      env     = var.helmfile_cmp_env_variables
-      securityContext = {
-        runAsNonRoot = true
-        runAsUser    = 999
-      }
-      terminationMessagePath   = "/dev/termination-log"
-      terminationMessagePolicy = "File"
-      volumeMounts = [
-        {
-          mountPath = "/var/run/argocd"
-          name      = "var-files"
-        },
-        {
-          mountPath = "/home/argocd/cmp-server/plugins"
-          name      = "plugins"
-        },
-        {
-          mountPath = "/tmp"
-          name      = "helmfile-cmp-tmp"
-        }
-      ]
-      # The extra containers of the repo_server pod must have resource requests/limits in order to allow this component
-      # to autoscale properly.
-      resources = {
-        requests = { for k, v in var.resources.helmfile_cmp.requests : k => v if v != null }
-        limits   = { for k, v in var.resources.helmfile_cmp.limits : k => v if v != null }
-      }
     }
   ]
 
@@ -133,16 +100,6 @@ locals {
       emptyDir = {}
     }
   ]
-
-  repo_server_service_account_annotations = merge(
-    var.repo_server_iam_role_arn != null ? { "eks.amazonaws.com/role-arn" = var.repo_server_iam_role_arn } : {},
-    var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/client-id" = var.repo_server_azure_workload_identity_clientid } : {}
-  )
-
-  repo_server_pod_labels = merge(
-    var.repo_server_azure_workload_identity_clientid != null ? { "azure.workload.identity/use" : "true" } : {},
-    var.repo_server_aadpodidbinding != null ? { "aadpodidbinding" : var.repo_server_aadpodidbinding } : {}
-  )
 
   helm_values = [{
     argo-cd = {
@@ -186,9 +143,6 @@ locals {
         params = {
           "server.insecure" = true # We terminate the SSL connection at the Traefik Ingress Controller
         }
-        ssh = {
-          knownHosts = var.ssh_known_hosts
-        }
         rbac = {
           scopes           = var.rbac.scopes
           "policy.default" = var.rbac.policy_default
@@ -201,7 +155,11 @@ locals {
             "oidc.default.clientSecret" = "${replace(var.oidc.clientSecret, "\\\"", "\"")}"
           }, local.extra_accounts_tokens)
         }
-      })
+        }, var.ssh_known_hosts != null ? {
+        ssh = {
+          knownHosts = var.ssh_known_hosts
+        }
+      } : null)
       applicationSet = {
         replicas = var.high_availability.enabled ? var.high_availability.application_set.replicas : null
         resources = {
@@ -226,12 +184,12 @@ locals {
         enabled = false
       }
       repoServer = {
-        replicas = var.high_availability.enabled && !var.high_availability.repo_server.autoscaling.enabled ? var.high_availability.server.replicas : null
-        autoscaling = var.high_availability.repo_server.autoscaling.enabled ? {
-          enabled     = true
+        replicas = var.high_availability.enabled && !var.high_availability.repo_server.autoscaling.enabled ? var.high_availability.repo_server.replicas : null
+        autoscaling = {
+          enabled     = var.high_availability.repo_server.autoscaling.enabled
           minReplicas = var.high_availability.repo_server.autoscaling.min_replicas
           maxReplicas = var.high_availability.repo_server.autoscaling.max_replicas
-        } : null
+        }
         resources = {
           requests = { for k, v in var.resources.repo_server.requests : k => v if v != null }
           limits   = { for k, v in var.resources.repo_server.limits : k => v if v != null }
@@ -244,19 +202,17 @@ locals {
         }
         volumes         = local.repo_server_volumes
         extraContainers = local.repo_server_extra_containers
-        podLabels       = local.repo_server_pod_labels
-        serviceAccount = {
-          annotations = local.repo_server_service_account_annotations
-        }
+
+
       }
       extraObjects = local.extra_objects
       server = {
         replicas = var.high_availability.enabled && !var.high_availability.server.autoscaling.enabled ? var.high_availability.server.replicas : null
-        autoscaling = var.high_availability.server.autoscaling.enabled ? {
-          enabled     = true
+        autoscaling = {
+          enabled     = var.high_availability.server.autoscaling.enabled
           minReplicas = var.high_availability.server.autoscaling.min_replicas
           maxReplicas = var.high_availability.server.autoscaling.max_replicas
-        } : null
+        }
         resources = {
           requests = { for k, v in var.resources.server.requests : k => v if v != null }
           limits   = { for k, v in var.resources.server.limits : k => v if v != null }
@@ -298,17 +254,8 @@ locals {
           limits   = { for k, v in var.resources.redis.limits : k => v if v != null }
         }
       } : null
-      redis-ha = var.high_availability.enabled ? {
-        enabled = true
-        redis = {
-          resources = {
-            requests = { for k, v in var.resources.redis.requests : k => v if v != null }
-            limits   = { for k, v in var.resources.redis.limits : k => v if v != null }
-          }
-        }
-        } : {
-        enabled = false
-        redis   = null
+      redis-ha = {
+        enabled = var.high_availability.enabled
       }
     }
   }]
